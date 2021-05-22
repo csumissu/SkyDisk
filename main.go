@@ -1,7 +1,10 @@
 package main
 
-import "fmt"
+import (
+	"github.com/csumissu/SkyDisk/graph"
+)
 
 func main() {
-	fmt.Println("hello world")
+	r := graph.InitRouter()
+	r.Run()
 }
