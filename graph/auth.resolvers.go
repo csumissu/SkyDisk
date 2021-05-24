@@ -5,14 +5,13 @@ package graph
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/csumissu/SkyDisk/graph/generated"
 	"github.com/csumissu/SkyDisk/graph/model"
 )
 
 func (r *mutationResolver) Login(ctx context.Context, input model.LoginRequest) (*model.LoginResponse, error) {
-	panic(fmt.Errorf("not implemented"))
+	return r.loginService.Login(ctx, input)
 }
 
 // Mutation returns generated.MutationResolver implementation.
