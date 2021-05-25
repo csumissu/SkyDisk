@@ -11,7 +11,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
-	"github.com/csumissu/SkyDisk/graph/model"
+	"github.com/csumissu/SkyDisk/graph/dto"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
 )
@@ -42,12 +42,12 @@ type DirectiveRoot struct {
 
 type ComplexityRoot struct {
 	LoginResponse struct {
-		ID       func(childComplexity int) int
 		Nickname func(childComplexity int) int
+		UserID   func(childComplexity int) int
 	}
 
 	Mutation struct {
-		Login func(childComplexity int, input model.LoginRequest) int
+		Login func(childComplexity int, input dto.LoginRequest) int
 	}
 
 	Query struct {
@@ -55,7 +55,7 @@ type ComplexityRoot struct {
 }
 
 type MutationResolver interface {
-	Login(ctx context.Context, input model.LoginRequest) (*model.LoginResponse, error)
+	Login(ctx context.Context, input dto.LoginRequest) (*dto.LoginResponse, error)
 }
 
 type executableSchema struct {
@@ -73,19 +73,19 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	_ = ec
 	switch typeName + "." + field {
 
-	case "LoginResponse.id":
-		if e.complexity.LoginResponse.ID == nil {
-			break
-		}
-
-		return e.complexity.LoginResponse.ID(childComplexity), true
-
 	case "LoginResponse.nickname":
 		if e.complexity.LoginResponse.Nickname == nil {
 			break
 		}
 
 		return e.complexity.LoginResponse.Nickname(childComplexity), true
+
+	case "LoginResponse.userId":
+		if e.complexity.LoginResponse.UserID == nil {
+			break
+		}
+
+		return e.complexity.LoginResponse.UserID(childComplexity), true
 
 	case "Mutation.login":
 		if e.complexity.Mutation.Login == nil {
@@ -97,7 +97,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.Login(childComplexity, args["input"].(model.LoginRequest)), true
+		return e.complexity.Mutation.Login(childComplexity, args["input"].(dto.LoginRequest)), true
 
 	}
 	return 0, false
@@ -173,7 +173,7 @@ input LoginRequest {
 }
 
 type LoginResponse {
-    id: ID!
+    userId: ID!
     nickname: String!
 }`, BuiltIn: false},
 }
@@ -186,10 +186,10 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 func (ec *executionContext) field_Mutation_login_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.LoginRequest
+	var arg0 dto.LoginRequest
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNLoginRequest2githubᚗcomᚋcsumissuᚋSkyDiskᚋgraphᚋmodelᚐLoginRequest(ctx, tmp)
+		arg0, err = ec.unmarshalNLoginRequest2githubᚗcomᚋcsumissuᚋSkyDiskᚋgraphᚋdtoᚐLoginRequest(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -251,7 +251,7 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _LoginResponse_id(ctx context.Context, field graphql.CollectedField, obj *model.LoginResponse) (ret graphql.Marshaler) {
+func (ec *executionContext) _LoginResponse_userId(ctx context.Context, field graphql.CollectedField, obj *dto.LoginResponse) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -269,7 +269,7 @@ func (ec *executionContext) _LoginResponse_id(ctx context.Context, field graphql
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.ID, nil
+		return obj.UserID, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -286,7 +286,7 @@ func (ec *executionContext) _LoginResponse_id(ctx context.Context, field graphql
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _LoginResponse_nickname(ctx context.Context, field graphql.CollectedField, obj *model.LoginResponse) (ret graphql.Marshaler) {
+func (ec *executionContext) _LoginResponse_nickname(ctx context.Context, field graphql.CollectedField, obj *dto.LoginResponse) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -346,7 +346,7 @@ func (ec *executionContext) _Mutation_login(ctx context.Context, field graphql.C
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().Login(rctx, args["input"].(model.LoginRequest))
+		return ec.resolvers.Mutation().Login(rctx, args["input"].(dto.LoginRequest))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -358,9 +358,9 @@ func (ec *executionContext) _Mutation_login(ctx context.Context, field graphql.C
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.LoginResponse)
+	res := resTmp.(*dto.LoginResponse)
 	fc.Result = res
-	return ec.marshalNLoginResponse2ᚖgithubᚗcomᚋcsumissuᚋSkyDiskᚋgraphᚋmodelᚐLoginResponse(ctx, field.Selections, res)
+	return ec.marshalNLoginResponse2ᚖgithubᚗcomᚋcsumissuᚋSkyDiskᚋgraphᚋdtoᚐLoginResponse(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -1521,8 +1521,8 @@ func (ec *executionContext) ___Type_ofType(ctx context.Context, field graphql.Co
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputLoginRequest(ctx context.Context, obj interface{}) (model.LoginRequest, error) {
-	var it model.LoginRequest
+func (ec *executionContext) unmarshalInputLoginRequest(ctx context.Context, obj interface{}) (dto.LoginRequest, error) {
+	var it dto.LoginRequest
 	var asMap = obj.(map[string]interface{})
 
 	for k, v := range asMap {
@@ -1559,7 +1559,7 @@ func (ec *executionContext) unmarshalInputLoginRequest(ctx context.Context, obj 
 
 var loginResponseImplementors = []string{"LoginResponse"}
 
-func (ec *executionContext) _LoginResponse(ctx context.Context, sel ast.SelectionSet, obj *model.LoginResponse) graphql.Marshaler {
+func (ec *executionContext) _LoginResponse(ctx context.Context, sel ast.SelectionSet, obj *dto.LoginResponse) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, loginResponseImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -1568,8 +1568,8 @@ func (ec *executionContext) _LoginResponse(ctx context.Context, sel ast.Selectio
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("LoginResponse")
-		case "id":
-			out.Values[i] = ec._LoginResponse_id(ctx, field, obj)
+		case "userId":
+			out.Values[i] = ec._LoginResponse_userId(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -1925,16 +1925,16 @@ func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.Selec
 	return res
 }
 
-func (ec *executionContext) unmarshalNLoginRequest2githubᚗcomᚋcsumissuᚋSkyDiskᚋgraphᚋmodelᚐLoginRequest(ctx context.Context, v interface{}) (model.LoginRequest, error) {
+func (ec *executionContext) unmarshalNLoginRequest2githubᚗcomᚋcsumissuᚋSkyDiskᚋgraphᚋdtoᚐLoginRequest(ctx context.Context, v interface{}) (dto.LoginRequest, error) {
 	res, err := ec.unmarshalInputLoginRequest(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNLoginResponse2githubᚗcomᚋcsumissuᚋSkyDiskᚋgraphᚋmodelᚐLoginResponse(ctx context.Context, sel ast.SelectionSet, v model.LoginResponse) graphql.Marshaler {
+func (ec *executionContext) marshalNLoginResponse2githubᚗcomᚋcsumissuᚋSkyDiskᚋgraphᚋdtoᚐLoginResponse(ctx context.Context, sel ast.SelectionSet, v dto.LoginResponse) graphql.Marshaler {
 	return ec._LoginResponse(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNLoginResponse2ᚖgithubᚗcomᚋcsumissuᚋSkyDiskᚋgraphᚋmodelᚐLoginResponse(ctx context.Context, sel ast.SelectionSet, v *model.LoginResponse) graphql.Marshaler {
+func (ec *executionContext) marshalNLoginResponse2ᚖgithubᚗcomᚋcsumissuᚋSkyDiskᚋgraphᚋdtoᚐLoginResponse(ctx context.Context, sel ast.SelectionSet, v *dto.LoginResponse) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")

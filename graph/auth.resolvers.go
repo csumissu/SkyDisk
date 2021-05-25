@@ -6,11 +6,11 @@ package graph
 import (
 	"context"
 
+	"github.com/csumissu/SkyDisk/graph/dto"
 	"github.com/csumissu/SkyDisk/graph/generated"
-	"github.com/csumissu/SkyDisk/graph/model"
 )
 
-func (r *mutationResolver) Login(ctx context.Context, input model.LoginRequest) (*model.LoginResponse, error) {
+func (r *mutationResolver) Login(ctx context.Context, input dto.LoginRequest) (*dto.LoginResponse, error) {
 	return r.loginService.Login(ctx, input)
 }
 

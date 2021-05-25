@@ -8,6 +8,6 @@ input LoginRequest {
 }
 
 type LoginResponse {
-    id: ID!
+    userId: ID!
     nickname: String!
 }
