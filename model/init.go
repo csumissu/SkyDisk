@@ -1,8 +1,10 @@
 package model
 
 import (
+	"fmt"
 	"time"
 
+	"github.com/csumissu/SkyDisk/conf"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
@@ -11,14 +13,19 @@ import (
 var DB *gorm.DB
 
 func init() {
-	dsn := "root:123456@tcp(127.0.0.1:3306)/sky_disk?charset=utf8mb4&parseTime=True&loc=Local"
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local",
+		conf.DatabaseCfg.User,
+		conf.DatabaseCfg.Password,
+		conf.DatabaseCfg.Host,
+		conf.DatabaseCfg.Port,
+		conf.DatabaseCfg.Name)
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
 		NamingStrategy: schema.NamingStrategy{
 			SingularTable: true,
 		},
 	})
 	if err != nil {
-		panic("can not connect to the database!")
+		panic(fmt.Sprintf("Can not connect to the database! %v", err))
 	}
 
 	db.Debug()
