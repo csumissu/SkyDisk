@@ -40,7 +40,3 @@ func init() {
 
 	migration()
 }
-
-func migration() {
-	DB.AutoMigrate(&Account{})
-}
