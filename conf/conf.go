@@ -18,6 +18,14 @@ type server struct {
 	Port int `ini:"port"`
 }
 
+type cors struct {
+	AllowOrigins     []string `ini:"allowOrigins"`
+	AllowMethods     []string `ini:"allowMethods"`
+	AllowHeaders     []string `ini:"allowHeaders"`
+	AllowCredentials bool     `ini:"allowCredentials"`
+	ExposeHeaders    []string `ini:"exposeHeaders"`
+}
+
 func init() {
 	cfg, err := ini.Load("conf/dev.ini")
 	if err != nil {
@@ -31,6 +39,7 @@ func loadSections(cfg *ini.File) {
 	sections := map[string]interface{}{
 		"database": DatabaseCfg,
 		"server":   ServerCfg,
+		"cors":     CORSCfg,
 	}
 
 	for sectionName, sectionStruct := range sections {

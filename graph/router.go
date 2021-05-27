@@ -3,11 +3,13 @@ package graph
 import (
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/csumissu/SkyDisk/graph/generated"
+	"github.com/csumissu/SkyDisk/middleware"
 	"github.com/gin-gonic/gin"
 )
 
 func InitRouter() *gin.Engine {
 	r := gin.Default()
+	r.Use(middleware.CORS())
 
 	v1 := r.Group("/api/v1")
 	{
