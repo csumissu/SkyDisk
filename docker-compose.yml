@@ -1,0 +1,19 @@
+version: '3.9'
+services:
+  mysql:
+    image: 'mysql:8.0.25'
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    ports:
+      - '3306:3306'
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_DATABASE: sky_disk
+
+  redis:
+    image: 'redis:6.2.3'
+    restart: always
+    ports:
+      - '6379:6379'
+    environment:
+      REDIS_PRELICATION_MODE: master
