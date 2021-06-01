@@ -14,6 +14,7 @@ type User struct {
 
 const (
 	Active = iota
+	Banned
 )
 
 func GetUserByUsername(username string) (User, error) {
@@ -28,8 +29,14 @@ func GetUserByID(ID interface{}) (User, error) {
 	return user, result.Error
 }
 
+func GetActiveUserByID(ID interface{}) (User, error) {
+	var user User
+	result := DB.Where("status = ?", Active).First(&user, ID)
+	return user, result.Error
+}
+
 func (user *User) CheckPassword(password string) (bool, error) {
-	return true, nil
+	return user.Password == password, nil
 }
 
 func (user *User) Create() error {

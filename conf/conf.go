@@ -26,6 +26,14 @@ type cors struct {
 	ExposeHeaders    []string `ini:"exposeHeaders"`
 }
 
+type redis struct {
+	Network  string `ini:"network"`
+	Host     string `ini:"host"`
+	Port     int    `ini:"port"`
+	Password string `ini:"password"`
+	DB       string `ini:"db"`
+}
+
 func init() {
 	cfg, err := ini.Load("conf/dev.ini")
 	if err != nil {
@@ -40,6 +48,7 @@ func loadSections(cfg *ini.File) {
 		"database": DatabaseCfg,
 		"server":   ServerCfg,
 		"cors":     CORSCfg,
+		"redis":    RedisCfg,
 	}
 
 	for sectionName, sectionStruct := range sections {

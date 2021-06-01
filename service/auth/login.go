@@ -18,6 +18,9 @@ func (service *LoginService) Login(ctx context.Context, input dto.LoginRequest) 
 	if authOK, _ := user.CheckPassword(input.Password); !authOK {
 		return nil, gqlerror.Errorf("Username or password is incorrect.")
 	}
+	if user.Status == model.Banned {
+		return nil, gqlerror.Errorf("This user was banned.")
+	}
 
 	response := &dto.LoginResponse{
 		UserID:   int(user.ID),
