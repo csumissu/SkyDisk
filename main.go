@@ -8,6 +8,6 @@ import (
 )
 
 func main() {
-	r := graph.InitRouter()
+	r := graph.InitRouters()
 	r.Run(fmt.Sprintf(":%d", conf.ServerCfg.Port))
 }

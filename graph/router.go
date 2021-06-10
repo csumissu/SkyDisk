@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func InitRouter() *gin.Engine {
+func InitRouters() *gin.Engine {
 	r := gin.Default()
 	r.Use(middleware.CORS())
 	r.Use(middleware.Session())
