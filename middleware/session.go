@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"context"
 	"fmt"
 	"github.com/csumissu/SkyDisk/conf"
 	"github.com/csumissu/SkyDisk/model"
@@ -36,7 +37,14 @@ func CurrentUser() gin.HandlerFunc {
 	}
 }
 
-func SetCurrentUser(c *gin.Context, user model.User) {
+func SetCurrentUser(ctx context.Context, user model.User) {
+	gc, err := GinContextFromContext(ctx)
+	if err != nil {
+		setCurrentUser(gc, user)
+	}
+}
+
+func setCurrentUser(c *gin.Context, user model.User) {
 	session := sessions.Default(c)
 	session.Set("user_id", user.ID)
 	err := session.Save()

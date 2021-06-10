@@ -10,6 +10,7 @@ import (
 func InitRouters() *gin.Engine {
 	r := gin.Default()
 	r.Use(middleware.CORS())
+	r.Use(middleware.GinContextToContextMiddleware())
 	r.Use(middleware.Session())
 	r.Use(middleware.CurrentUser())
 

@@ -3,6 +3,7 @@ package auth
 import (
 	"context"
 	"github.com/csumissu/SkyDisk/graph/dto"
+	"github.com/csumissu/SkyDisk/middleware"
 	"github.com/csumissu/SkyDisk/model"
 	"github.com/vektah/gqlparser/v2/gqlerror"
 )
@@ -21,6 +22,8 @@ func (service *LoginService) Login(ctx context.Context, input dto.LoginRequest) 
 	if user.Status == model.Banned {
 		return nil, gqlerror.Errorf("this user was banned")
 	}
+
+	middleware.SetCurrentUser(ctx, user)
 
 	response := &dto.LoginResponse{
 		UserID:   int(user.ID),
