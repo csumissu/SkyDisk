@@ -2,6 +2,7 @@ package model
 
 import (
 	"fmt"
+	"github.com/csumissu/SkyDisk/util/logger"
 	"time"
 
 	"github.com/csumissu/SkyDisk/conf"
@@ -25,7 +26,7 @@ func init() {
 		},
 	})
 	if err != nil {
-		panic(fmt.Sprintf("Can not connect to the database! %v", err))
+		logger.Fatal("can not connect to the database! %v", err)
 	}
 
 	db.Debug()

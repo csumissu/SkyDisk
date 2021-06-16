@@ -51,6 +51,26 @@ func Fatal(format string, v ...interface{}) {
 	panic(msg)
 }
 
+func Error(format string, v ...interface{}) {
+	msg := fmt.Sprintf(format, v...)
+	innerPrintln(LevelError, msg)
+}
+
+func Warn(format string, v ...interface{}) {
+	msg := fmt.Sprintf(format, v...)
+	innerPrintln(LevelWarn, msg)
+}
+
+func Info(format string, v ...interface{}) {
+	msg := fmt.Sprintf(format, v...)
+	innerPrintln(LevelInfo, msg)
+}
+
+func Debug(format string, v ...interface{}) {
+	msg := fmt.Sprintf(format, v...)
+	innerPrintln(LevelDebug, msg)
+}
+
 func innerPrintln(level int, msg string) {
 	if level < defaultLogger.level {
 		return

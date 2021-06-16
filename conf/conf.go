@@ -1,7 +1,7 @@
 package conf
 
 import (
-	"fmt"
+	"github.com/csumissu/SkyDisk/util/logger"
 
 	"gopkg.in/ini.v1"
 )
@@ -37,7 +37,7 @@ type redis struct {
 func init() {
 	cfg, err := ini.Load("conf/dev.ini")
 	if err != nil {
-		panic(fmt.Sprintf("Fail to read ini file: %v", err))
+		logger.Fatal("fail to read ini file: %v", err)
 	}
 
 	loadSections(cfg)
@@ -54,7 +54,7 @@ func loadSections(cfg *ini.File) {
 	for sectionName, sectionStruct := range sections {
 		err := cfg.Section(sectionName).MapTo(sectionStruct)
 		if err != nil {
-			panic(fmt.Sprintf("Fail to extract %s section from ini file, %v", sectionName, err))
+			logger.Fatal("fail to extract %s section from ini file, %v", sectionName, err)
 		}
 	}
 }

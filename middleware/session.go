@@ -2,13 +2,12 @@ package middleware
 
 import (
 	"context"
-	"fmt"
 	"github.com/csumissu/SkyDisk/conf"
 	"github.com/csumissu/SkyDisk/model"
+	"github.com/csumissu/SkyDisk/util/logger"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/redis"
 	"github.com/gin-gonic/gin"
-	"log"
 	"strconv"
 )
 
@@ -16,7 +15,7 @@ func Session() gin.HandlerFunc {
 	address := conf.RedisCfg.Host + ":" + strconv.Itoa(conf.RedisCfg.Port)
 	store, err := redis.NewStoreWithDB(10, conf.RedisCfg.Network, address, conf.RedisCfg.Password, conf.RedisCfg.DB)
 	if err != nil {
-		panic(fmt.Sprintf("Cannot connect to redis! %v", err))
+		logger.Fatal("cannot connect to redis! %v", err)
 	}
 
 	store.Options(sessions.Options{HttpOnly: true, MaxAge: 7 * 24 * 3600, Path: "/"})
@@ -49,6 +48,6 @@ func setCurrentUser(c *gin.Context, user model.User) {
 	session.Set("user_id", user.ID)
 	err := session.Save()
 	if err != nil {
-		log.Println("Set current user failed", err)
+		logger.Error("set current user failed, %v", err)
 	}
 }
