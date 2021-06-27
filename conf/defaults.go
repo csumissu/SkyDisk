@@ -19,3 +19,5 @@ var CORSCfg = &cors{
 	AllowCredentials: false,
 	ExposeHeaders:    nil,
 }
+
+var JwtCfg = &jwt{}

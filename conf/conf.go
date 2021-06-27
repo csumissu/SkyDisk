@@ -34,6 +34,11 @@ type redis struct {
 	DB       string `ini:"db"`
 }
 
+type jwt struct {
+	SigningKey      string `ini:"signingKey"`
+	ExpirationHours int    `ini:"expirationHours"`
+}
+
 func init() {
 	cfg, err := ini.Load("conf/dev.ini")
 	if err != nil {
@@ -49,6 +54,7 @@ func loadSections(cfg *ini.File) {
 		"server":   ServerCfg,
 		"cors":     CORSCfg,
 		"redis":    RedisCfg,
+		"jwt":      JwtCfg,
 	}
 
 	for sectionName, sectionStruct := range sections {

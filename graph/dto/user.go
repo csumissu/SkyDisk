@@ -8,6 +8,13 @@ type LoginRequest struct {
 }
 
 type LoginResponse struct {
-	UserID   int    `json:"userId"`
-	Nickname string `json:"nickname"`
+	UserID      int                 `json:"userId"`
+	Nickname    string              `json:"nickname"`
+	AccessToken AccessTokenResponse `json:"accessToken"`
+}
+
+type AccessTokenResponse struct {
+	Type     string `json:"type"`
+	Token    string `json:"token"`
+	ExpireAt int64  `json:"expireAt"`
 }
