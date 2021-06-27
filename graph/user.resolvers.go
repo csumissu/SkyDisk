@@ -5,13 +5,14 @@ package graph
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/csumissu/SkyDisk/graph/dto"
 	"github.com/csumissu/SkyDisk/graph/generated"
 )
 
-func (r *mutationResolver) Login(ctx context.Context, input dto.LoginRequest) (*dto.LoginResponse, error) {
-	return r.loginService.Login(ctx, input)
+func (r *mutationResolver) SearchUserProfile(ctx context.Context) (*dto.UserProfileResponse, error) {
+	panic(fmt.Errorf("not implemented"))
 }
 
 // Mutation returns generated.MutationResolver implementation.

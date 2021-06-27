@@ -1,13 +1,9 @@
-extend type Mutation {
-    login(input: LoginRequest!): LoginResponse!
+type Mutation {
+    searchUserProfile: UserProfileResponse!
 }
 
-input LoginRequest {
+type UserProfileResponse {
+    id: ID!
     username: String!
-    password: String!
-}
-
-type LoginResponse {
-    userId: ID!
     nickname: String!
 }

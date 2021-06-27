@@ -2,8 +2,12 @@
 
 package dto
 
-type UserProfileResponse struct {
-	ID       int    `json:"id"`
+type LoginRequest struct {
 	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
+type LoginResponse struct {
+	UserID   int    `json:"userId"`
 	Nickname string `json:"nickname"`
 }

@@ -1,9 +1,9 @@
 package graph
 
-import "github.com/csumissu/SkyDisk/service/auth"
+import "github.com/csumissu/SkyDisk/service/user"
 
 //go:generate go run github.com/99designs/gqlgen
 
 type Resolver struct {
-	loginService auth.LoginService
+	loginService user.LoginService
 }
