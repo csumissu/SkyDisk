@@ -5,6 +5,7 @@ import (
 	"github.com/csumissu/SkyDisk/graph/dto"
 	"github.com/csumissu/SkyDisk/graph/generated"
 	"github.com/csumissu/SkyDisk/middleware"
+	"github.com/csumissu/SkyDisk/model"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -34,16 +35,10 @@ func graphqlHandler() gin.HandlerFunc {
 
 func userLogin(c *gin.Context) {
 	var request dto.LoginRequest
-	if err := c.ShouldBindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
+	if err := c.ShouldBindJSON(&request); err == nil {
+		response := resolver.loginService.Login(c, request)
+		c.JSON(response.HttpStatus, response)
+	} else {
+		c.JSON(http.StatusBadRequest, model.ErrorResponse(err))
 	}
-
-	response, err := resolver.loginService.Login(c, request)
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, response)
 }

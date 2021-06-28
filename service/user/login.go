@@ -6,28 +6,29 @@ import (
 	"github.com/csumissu/SkyDisk/model"
 	"github.com/csumissu/SkyDisk/util/jwt"
 	"github.com/gin-gonic/gin"
+	"net/http"
 )
 
 type LoginService struct {
 }
 
-func (service *LoginService) Login(c *gin.Context, input dto.LoginRequest) (*dto.LoginResponse, error) {
+func (service *LoginService) Login(c *gin.Context, input dto.LoginRequest) model.ResponseResult {
 	user, err := model.GetUserByUsername(input.Username)
 	if err != nil {
-		return nil, fmt.Errorf("username or password is incorrect")
+		return model.Failure(http.StatusBadRequest, "username or password is incorrect")
 	}
 	if authOK, _ := user.CheckPassword(input.Password); !authOK {
-		return nil, fmt.Errorf("username or password is incorrect")
+		return model.Failure(http.StatusBadRequest, "username or password is incorrect")
 	}
 	if user.Status == model.Banned {
-		return nil, fmt.Errorf("this user was banned")
+		return model.Failure(http.StatusForbidden, "this user is banned")
 	}
 
 	claims := jwt.NewClaims()
 	claims.Subject = fmt.Sprint(user.ID)
 	token, err := jwt.GenerateToken(claims)
 	if err != nil {
-		return nil, fmt.Errorf("internal server error")
+		return model.Failure(http.StatusInternalServerError, "token could not be generated")
 	}
 
 	response := &dto.LoginResponse{
@@ -39,5 +40,5 @@ func (service *LoginService) Login(c *gin.Context, input dto.LoginRequest) (*dto
 			ExpireAt: claims.ExpiresAt * 1000,
 		},
 	}
-	return response, nil
+	return model.Success(response)
 }
