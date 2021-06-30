@@ -5,7 +5,7 @@ services:
     command: --default-authentication-plugin=mysql_native_password
     restart: always
     ports:
-      - '3306:3306'
+      - '33306:3306'
     environment:
       MYSQL_ROOT_PASSWORD: 123456
       MYSQL_DATABASE: sky_disk
@@ -14,6 +14,6 @@ services:
     image: 'redis:6.2.3'
     restart: always
     ports:
-      - '6379:6379'
+      - '36379:6379'
     environment:
       REDIS_PRELICATION_MODE: master
