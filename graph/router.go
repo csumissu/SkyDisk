@@ -37,7 +37,7 @@ func graphqlHandler() gin.HandlerFunc {
 func userLogin(c *gin.Context) {
 	var request dto.LoginRequest
 	if err := c.ShouldBindJSON(&request); err == nil {
-		response := resolver.authService.Login(c, request)
+		response := resolver.authService.Login(request)
 		c.JSON(response.HttpStatus, response)
 	} else {
 		c.JSON(http.StatusBadRequest, model.ErrorResponse(err))
@@ -45,6 +45,7 @@ func userLogin(c *gin.Context) {
 }
 
 func userLogout(c *gin.Context) {
-	response := resolver.authService.Logout(c)
+	var token = c.GetHeader("Authorization")
+	response := resolver.authService.Logout(token)
 	c.JSON(response.HttpStatus, response)
 }
