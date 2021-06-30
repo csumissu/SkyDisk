@@ -1,17 +1,16 @@
-package model
+package infrastructure
 
 import (
 	"fmt"
-	"github.com/csumissu/SkyDisk/util/logger"
-	"time"
-
 	"github.com/csumissu/SkyDisk/conf"
+	"github.com/csumissu/SkyDisk/util/logger"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
+	"time"
 )
 
-var DB *gorm.DB
+var GormDB *gorm.DB
 
 func init() {
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local",
@@ -37,7 +36,5 @@ func init() {
 	sqlDB.SetMaxOpenConns(5)
 	sqlDB.SetConnMaxLifetime(time.Second * 30)
 
-	DB = db
-
-	migration()
+	GormDB = db
 }

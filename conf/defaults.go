@@ -9,7 +9,7 @@ var ServerCfg = &server{
 var RedisCfg = &redis{
 	Network: "tcp",
 	Port:    6379,
-	DB:      "0",
+	DB:      0,
 }
 
 var CORSCfg = &cors{

@@ -31,7 +31,7 @@ type redis struct {
 	Host     string `ini:"host"`
 	Port     int    `ini:"port"`
 	Password string `ini:"password"`
-	DB       string `ini:"db"`
+	DB       int    `ini:"db"`
 }
 
 type jwt struct {

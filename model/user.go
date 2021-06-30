@@ -19,19 +19,19 @@ const (
 
 func GetUserByUsername(username string) (User, error) {
 	var user User
-	result := DB.Where("username = ?", username).First(&user)
+	result := db.Where("username = ?", username).First(&user)
 	return user, result.Error
 }
 
 func GetUserByID(ID interface{}) (User, error) {
 	var user User
-	result := DB.First(&user, ID)
+	result := db.First(&user, ID)
 	return user, result.Error
 }
 
 func GetActiveUserByID(ID interface{}) (User, error) {
 	var user User
-	result := DB.Where("status = ?", Active).First(&user, ID)
+	result := db.Where("status = ?", Active).First(&user, ID)
 	return user, result.Error
 }
 
@@ -40,5 +40,5 @@ func (user *User) CheckPassword(password string) (bool, error) {
 }
 
 func (user *User) Create() error {
-	return DB.Create(user).Error
+	return db.Create(user).Error
 }

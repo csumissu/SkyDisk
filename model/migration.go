@@ -1,12 +1,15 @@
 package model
 
 import (
+	"github.com/csumissu/SkyDisk/infrastructure"
 	"github.com/csumissu/SkyDisk/util/logger"
 	"gorm.io/gorm"
 )
 
-func migration() {
-	if err := DB.AutoMigrate(&User{}); err != nil {
+var db = infrastructure.GormDB
+
+func init() {
+	if err := db.AutoMigrate(&User{}); err != nil {
 		logger.Fatal("could not migrate schema, %v", err)
 	}
 
