@@ -9,10 +9,10 @@ import (
 	"net/http"
 )
 
-type LoginService struct {
+type AuthService struct {
 }
 
-func (service *LoginService) Login(c *gin.Context, input dto.LoginRequest) model.ResponseResult {
+func (service *AuthService) Login(c *gin.Context, input dto.LoginRequest) model.ResponseResult {
 	user, err := model.GetUserByUsername(input.Username)
 	if err != nil {
 		return model.Failure(http.StatusBadRequest, "username or password is incorrect")
@@ -41,4 +41,8 @@ func (service *LoginService) Login(c *gin.Context, input dto.LoginRequest) model
 		},
 	}
 	return model.Success(response)
+}
+
+func (service *AuthService) Logout(c *gin.Context) model.ResponseResult {
+	return model.Success(nil)
 }

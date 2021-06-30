@@ -20,6 +20,7 @@ func InitRouters() *gin.Engine {
 	api := r.Group("/api")
 	{
 		api.POST("/login", userLogin)
+		api.POST("/logout", userLogout)
 		api.POST("/graphql", graphqlHandler())
 	}
 
@@ -36,9 +37,14 @@ func graphqlHandler() gin.HandlerFunc {
 func userLogin(c *gin.Context) {
 	var request dto.LoginRequest
 	if err := c.ShouldBindJSON(&request); err == nil {
-		response := resolver.loginService.Login(c, request)
+		response := resolver.authService.Login(c, request)
 		c.JSON(response.HttpStatus, response)
 	} else {
 		c.JSON(http.StatusBadRequest, model.ErrorResponse(err))
 	}
+}
+
+func userLogout(c *gin.Context) {
+	response := resolver.authService.Logout(c)
+	c.JSON(response.HttpStatus, response)
 }
