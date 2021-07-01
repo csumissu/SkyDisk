@@ -2,11 +2,12 @@ package jwt
 
 import (
 	"fmt"
-	"github.com/csumissu/SkyDisk/conf"
-	"github.com/dgrijalva/jwt-go"
-	"github.com/google/uuid"
 	"strings"
 	"time"
+
+	"github.com/csumissu/SkyDisk/conf"
+	"github.com/golang-jwt/jwt"
+	"github.com/google/uuid"
 )
 
 var TokenType = "Bearer"
@@ -38,7 +39,7 @@ func GenerateToken(claims jwt.Claims) (string, error) {
 }
 
 func ParseToken(token string) (jwt.MapClaims, error) {
-	pureToken := strings.ReplaceAll(token, TokenType+" ", "")
+	pureToken := strings.TrimPrefix(token, TokenType+" ")
 
 	jwtToken, err := jwt.Parse(pureToken, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
