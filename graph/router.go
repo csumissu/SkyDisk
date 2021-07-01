@@ -21,7 +21,7 @@ func InitRouters() *gin.Engine {
 	{
 		api.POST("/login", userLogin)
 		api.POST("/logout", userLogout)
-		api.POST("/graphql", graphqlHandler())
+		api.POST("/graphql", middleware.SignRequired(), graphqlHandler())
 	}
 
 	return r

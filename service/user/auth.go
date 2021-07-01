@@ -6,6 +6,7 @@ import (
 	"github.com/csumissu/SkyDisk/util/jwt"
 	"github.com/csumissu/SkyDisk/util/redis"
 	"net/http"
+	"strconv"
 )
 
 type AuthService struct {
@@ -24,7 +25,7 @@ func (service *AuthService) Login(input dto.LoginRequest) model.ResponseResult {
 	}
 
 	payload := make(map[string]interface{})
-	payload["sub"] = user.ID
+	payload["sub"] = strconv.FormatUint(uint64(user.ID), 10)
 	claims := jwt.NewClaims(payload)
 	token, err := jwt.GenerateToken(claims)
 	if err != nil {
