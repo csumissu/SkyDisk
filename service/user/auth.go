@@ -1,6 +1,7 @@
 package user
 
 import (
+	"fmt"
 	"github.com/csumissu/SkyDisk/config"
 	"github.com/csumissu/SkyDisk/infra"
 	"github.com/csumissu/SkyDisk/models"
@@ -52,5 +53,17 @@ func (service *AuthService) Logout(token string) dto.ResponseResult {
 	} else {
 		infra.RedisClient.Del(claims.Id)
 		return dto.Success(nil)
+	}
+}
+
+func CheckAuthorizationHeader(token string) (*util.Claims, error) {
+	if len(token) == 0 {
+		return nil, fmt.Errorf("authorization header is missing")
+	} else if claims, err := util.ParseJwtToken(config.JwtCfg.SigningKey, token); err != nil {
+		return nil, fmt.Errorf("token is invalid")
+	} else if !infra.RedisClient.Exists(claims.Id) {
+		return nil, fmt.Errorf("token is no longer valid")
+	} else {
+		return claims, nil
 	}
 }

@@ -14,7 +14,7 @@ func InitRouters() *gin.Engine {
 	api := r.Group("/api")
 	{
 		api.POST("/login", controllers.Login)
-		api.POST("/logout", controllers.Logout)
+		api.POST("/logout", middleware.SignRequired(), controllers.Logout)
 		api.POST("/graphql", middleware.SignRequired(), controllers.GraphqlHandler())
 	}
 

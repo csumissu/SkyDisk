@@ -27,19 +27,26 @@ func init() {
 }
 
 func (redis *redisClient) Set(key string, value interface{}, expiration time.Duration) bool {
-	err := redis.client.Set(ctx, key, value, expiration).Err()
-	if err != nil {
-		util.Logger.Error("set redis value failed, key: %s, value: %v", key, value, err)
+	if err := redis.client.Set(ctx, key, value, expiration).Err(); err != nil {
+		util.Logger.Error("set redis value failed, key: %v, value: %v", key, value, err)
 		return false
 	}
 	return true
 }
 
 func (redis *redisClient) Del(keys ...string) bool {
-	err := redis.client.Del(ctx, keys...).Err()
-	if err != nil {
+	if err := redis.client.Del(ctx, keys...).Err(); err != nil {
 		util.Logger.Error("delete redis key failed, keys: %v", keys, err)
 		return false
 	}
 	return true
+}
+
+func (redis *redisClient) Exists(keys ...string) bool {
+	if count, err := redis.client.Exists(ctx, keys...).Result(); err != nil {
+		util.Logger.Error("check redis key exists failed, keys: %v", keys, err)
+		return false
+	} else {
+		return count == int64(len(keys))
+	}
 }
