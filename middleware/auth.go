@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"context"
 	"github.com/csumissu/SkyDisk/routers/dto"
 	"github.com/csumissu/SkyDisk/service/user"
 	"github.com/gin-gonic/gin"
@@ -10,7 +11,7 @@ import (
 
 const userIDContextKey = "UserIDContextKey"
 
-func SignRequired() gin.HandlerFunc {
+func AuthRequired() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		token := c.GetHeader("Authorization")
 		if claims, err := user.CheckAuthorizationHeader(token); err != nil {
@@ -18,9 +19,18 @@ func SignRequired() gin.HandlerFunc {
 			c.JSON(response.HttpStatus, response)
 			c.Abort()
 		} else {
-			userID, _ := strconv.ParseUint(claims.Subject, 10, 32)
+			subject, _ := strconv.ParseUint(claims.Subject, 10, 32)
+			userID := uint(subject)
+
+			ctx := context.WithValue(c.Request.Context(), userIDContextKey, userID)
+			c.Request = c.Request.WithContext(ctx)
+
 			c.Set(userIDContextKey, userID)
 			c.Next()
 		}
 	}
+}
+
+func GetCurrentUserID(ctx context.Context) uint {
+	return ctx.Value(userIDContextKey).(uint)
 }
