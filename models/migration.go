@@ -1,12 +1,12 @@
-package model
+package models
 
 import (
-	"github.com/csumissu/SkyDisk/infrastructure"
+	"github.com/csumissu/SkyDisk/infra"
 	"github.com/csumissu/SkyDisk/util/logger"
 	"gorm.io/gorm"
 )
 
-var db = infrastructure.GormDB
+var db = infra.GormDB
 
 func init() {
 	if err := db.AutoMigrate(&User{}); err != nil {

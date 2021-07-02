@@ -2,13 +2,13 @@ package redis
 
 import (
 	"context"
-	"github.com/csumissu/SkyDisk/infrastructure"
+	"github.com/csumissu/SkyDisk/infra"
 	"github.com/csumissu/SkyDisk/util/logger"
 	"time"
 )
 
 var ctx = context.Background()
-var redisClient = infrastructure.RedisClient
+var redisClient = infra.RedisClient
 
 func Set(key string, value interface{}, expiration time.Duration) bool {
 	err := redisClient.Set(ctx, key, value, expiration).Err()

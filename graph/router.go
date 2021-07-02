@@ -5,7 +5,7 @@ import (
 	"github.com/csumissu/SkyDisk/graph/dto"
 	"github.com/csumissu/SkyDisk/graph/generated"
 	"github.com/csumissu/SkyDisk/middleware"
-	"github.com/csumissu/SkyDisk/model"
+	"github.com/csumissu/SkyDisk/models"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -40,7 +40,7 @@ func userLogin(c *gin.Context) {
 		response := resolver.authService.Login(request)
 		c.JSON(response.HttpStatus, response)
 	} else {
-		c.JSON(http.StatusBadRequest, model.ErrorResponse(err))
+		c.JSON(http.StatusBadRequest, models.ErrorResponse(err))
 	}
 }
 

@@ -1,8 +1,8 @@
-package infrastructure
+package infra
 
 import (
 	"fmt"
-	"github.com/csumissu/SkyDisk/conf"
+	"github.com/csumissu/SkyDisk/config"
 	"github.com/csumissu/SkyDisk/util/logger"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -14,11 +14,11 @@ var GormDB *gorm.DB
 
 func init() {
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local",
-		conf.DatabaseCfg.User,
-		conf.DatabaseCfg.Password,
-		conf.DatabaseCfg.Host,
-		conf.DatabaseCfg.Port,
-		conf.DatabaseCfg.Name)
+		config.DatabaseCfg.User,
+		config.DatabaseCfg.Password,
+		config.DatabaseCfg.Host,
+		config.DatabaseCfg.Port,
+		config.DatabaseCfg.Name)
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
 		NamingStrategy: schema.NamingStrategy{
 			SingularTable: true,

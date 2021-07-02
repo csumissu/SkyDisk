@@ -2,7 +2,7 @@ package user
 
 import (
 	"github.com/csumissu/SkyDisk/graph/dto"
-	"github.com/csumissu/SkyDisk/model"
+	"github.com/csumissu/SkyDisk/models"
 	"github.com/csumissu/SkyDisk/util/jwt"
 	"github.com/csumissu/SkyDisk/util/redis"
 	"net/http"
@@ -12,16 +12,16 @@ import (
 type AuthService struct {
 }
 
-func (service *AuthService) Login(input dto.LoginRequest) model.ResponseResult {
-	user, err := model.GetUserByUsername(input.Username)
+func (service *AuthService) Login(input dto.LoginRequest) models.ResponseResult {
+	user, err := models.GetUserByUsername(input.Username)
 	if err != nil {
-		return model.Failure(http.StatusBadRequest, "username or password is incorrect")
+		return models.Failure(http.StatusBadRequest, "username or password is incorrect")
 	}
 	if authOK, _ := user.CheckPassword(input.Password); !authOK {
-		return model.Failure(http.StatusBadRequest, "username or password is incorrect")
+		return models.Failure(http.StatusBadRequest, "username or password is incorrect")
 	}
-	if user.Status == model.Banned {
-		return model.Failure(http.StatusForbidden, "this user is banned")
+	if user.Status == models.Banned {
+		return models.Failure(http.StatusForbidden, "this user is banned")
 	}
 
 	payload := make(map[string]interface{})
@@ -29,7 +29,7 @@ func (service *AuthService) Login(input dto.LoginRequest) model.ResponseResult {
 	claims := jwt.NewClaims(payload)
 	token, err := jwt.GenerateToken(claims)
 	if err != nil {
-		return model.Failure(http.StatusInternalServerError, "token could not be generated")
+		return models.Failure(http.StatusInternalServerError, "token could not be generated")
 	}
 	redis.Set(claims["jti"].(string), user.ID, jwt.DefaultExpirationDuration())
 
@@ -42,14 +42,14 @@ func (service *AuthService) Login(input dto.LoginRequest) model.ResponseResult {
 			ExpireAt: claims["exp"].(int64) * 1000,
 		},
 	}
-	return model.Success(response)
+	return models.Success(response)
 }
 
-func (service *AuthService) Logout(token string) model.ResponseResult {
+func (service *AuthService) Logout(token string) models.ResponseResult {
 	if claims, err := jwt.ParseToken(token); err != nil {
-		return model.FailureWithError(http.StatusBadRequest, "token could not be parsed", err)
+		return models.FailureWithError(http.StatusBadRequest, "token could not be parsed", err)
 	} else {
 		redis.Del(claims["jti"].(string))
-		return model.Success(nil)
+		return models.Success(nil)
 	}
 }

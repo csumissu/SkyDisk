@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/csumissu/SkyDisk/conf"
+	"github.com/csumissu/SkyDisk/config"
 	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
 )
@@ -14,7 +14,7 @@ var TokenType = "Bearer"
 var ISSUER = "csumissu.xyz"
 
 func DefaultExpirationDuration() time.Duration {
-	return time.Duration(conf.JwtCfg.ExpirationHours) * time.Hour
+	return time.Duration(config.JwtCfg.ExpirationHours) * time.Hour
 }
 
 func NewClaims(payload map[string]interface{}) jwt.MapClaims {
@@ -35,7 +35,7 @@ func NewClaims(payload map[string]interface{}) jwt.MapClaims {
 
 func GenerateToken(claims jwt.Claims) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString([]byte(conf.JwtCfg.SigningKey))
+	return token.SignedString([]byte(config.JwtCfg.SigningKey))
 }
 
 func ParseToken(token string) (jwt.MapClaims, error) {
@@ -45,7 +45,7 @@ func ParseToken(token string) (jwt.MapClaims, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Method.Alg())
 		}
-		return []byte(conf.JwtCfg.SigningKey), nil
+		return []byte(config.JwtCfg.SigningKey), nil
 	})
 
 	if err != nil {

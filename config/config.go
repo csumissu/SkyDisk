@@ -1,4 +1,4 @@
-package conf
+package config
 
 import (
 	"github.com/csumissu/SkyDisk/util/logger"
@@ -40,7 +40,7 @@ type jwt struct {
 }
 
 func init() {
-	cfg, err := ini.Load("conf/dev.ini")
+	cfg, err := ini.Load("config/resources/dev.ini")
 	if err != nil {
 		logger.Fatal("fail to read ini file: %v", err)
 	}
