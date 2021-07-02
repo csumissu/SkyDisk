@@ -2,9 +2,9 @@ package user
 
 import (
 	"github.com/csumissu/SkyDisk/graph/dto"
+	"github.com/csumissu/SkyDisk/infra"
 	"github.com/csumissu/SkyDisk/models"
 	"github.com/csumissu/SkyDisk/util/jwt"
-	"github.com/csumissu/SkyDisk/util/redis"
 	"net/http"
 	"strconv"
 )
@@ -31,7 +31,7 @@ func (service *AuthService) Login(input dto.LoginRequest) models.ResponseResult 
 	if err != nil {
 		return models.Failure(http.StatusInternalServerError, "token could not be generated")
 	}
-	redis.Set(claims["jti"].(string), user.ID, jwt.DefaultExpirationDuration())
+	infra.Redis().Set(claims["jti"].(string), user.ID, jwt.DefaultExpirationDuration())
 
 	response := &dto.LoginResponse{
 		UserID:   int(user.ID),
@@ -49,7 +49,7 @@ func (service *AuthService) Logout(token string) models.ResponseResult {
 	if claims, err := jwt.ParseToken(token); err != nil {
 		return models.FailureWithError(http.StatusBadRequest, "token could not be parsed", err)
 	} else {
-		redis.Del(claims["jti"].(string))
+		infra.Redis().Del(claims["jti"].(string))
 		return models.Success(nil)
 	}
 }
