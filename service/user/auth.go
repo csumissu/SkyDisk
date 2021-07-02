@@ -14,23 +14,23 @@ import (
 type AuthService struct {
 }
 
-func (service *AuthService) Login(input dto.LoginRequest) models.ResponseResult {
+func (service *AuthService) Login(input dto.LoginRequest) dto.ResponseResult {
 	user, err := models.GetUserByUsername(input.Username)
 	if err != nil {
-		return models.Failure(http.StatusBadRequest, "username or password is incorrect")
+		return dto.Failure(http.StatusBadRequest, "username or password is incorrect")
 	}
 	if authOK, _ := user.CheckPassword(input.Password); !authOK {
-		return models.Failure(http.StatusBadRequest, "username or password is incorrect")
+		return dto.Failure(http.StatusBadRequest, "username or password is incorrect")
 	}
 	if user.Status == models.Banned {
-		return models.Failure(http.StatusForbidden, "this user is banned")
+		return dto.Failure(http.StatusForbidden, "this user is banned")
 	}
 
 	expirationDuration := time.Duration(config.JwtCfg.ExpirationHours) * time.Hour
 	claims := util.NewClaims(strconv.FormatUint(uint64(user.ID), 10), expirationDuration)
 	token, err := util.GenerateJwtToken(config.JwtCfg.SigningKey, claims)
 	if err != nil {
-		return models.Failure(http.StatusInternalServerError, "token could not be generated")
+		return dto.Failure(http.StatusInternalServerError, "token could not be generated")
 	}
 	infra.RedisClient.Set(claims.Id, user.ID, expirationDuration)
 
@@ -43,14 +43,14 @@ func (service *AuthService) Login(input dto.LoginRequest) models.ResponseResult 
 			ExpireAt: claims.ExpiresAt * 1000,
 		},
 	}
-	return models.Success(response)
+	return dto.Success(response)
 }
 
-func (service *AuthService) Logout(token string) models.ResponseResult {
+func (service *AuthService) Logout(token string) dto.ResponseResult {
 	if claims, err := util.ParseJwtToken(config.JwtCfg.SigningKey, token); err != nil {
-		return models.FailureWithError(http.StatusBadRequest, "token could not be parsed", err)
+		return dto.FailureWithError(http.StatusBadRequest, "token could not be parsed", err)
 	} else {
 		infra.RedisClient.Del(claims.Id)
-		return models.Success(nil)
+		return dto.Success(nil)
 	}
 }

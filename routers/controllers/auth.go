@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"github.com/csumissu/SkyDisk/models"
 	"github.com/csumissu/SkyDisk/routers/dto"
 	"github.com/csumissu/SkyDisk/service/user"
 	"github.com/gin-gonic/gin"
@@ -16,7 +15,7 @@ func Login(c *gin.Context) {
 		response := authService.Login(request)
 		c.JSON(response.HttpStatus, response)
 	} else {
-		c.JSON(http.StatusBadRequest, models.ErrorResponse(err))
+		c.JSON(http.StatusBadRequest, dto.ErrorResponse(err))
 	}
 }
 
