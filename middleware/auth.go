@@ -1,8 +1,9 @@
 package middleware
 
 import (
+	"github.com/csumissu/SkyDisk/config"
 	"github.com/csumissu/SkyDisk/models"
-	"github.com/csumissu/SkyDisk/util/jwt"
+	"github.com/csumissu/SkyDisk/util"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
@@ -16,11 +17,11 @@ func SignRequired() gin.HandlerFunc {
 			response := models.Failure(http.StatusUnauthorized, "authorization header is missing")
 			c.JSON(response.HttpStatus, response)
 			c.Abort()
-		} else if claims, err := jwt.ParseToken(token); err != nil {
+		} else if claims, err := util.ParseJwtToken(config.JwtCfg.SigningKey, token); err != nil {
 			response := models.FailureWithError(http.StatusUnauthorized, "token is invalid", err)
 			c.JSON(response.HttpStatus, response)
 			c.Abort()
-		} else if userID, err := strconv.ParseUint(claims["sub"].(string), 10, 32); err != nil {
+		} else if userID, err := strconv.ParseUint(claims.Subject, 10, 32); err != nil {
 			response := models.FailureWithError(http.StatusUnauthorized, "token is invalid", err)
 			c.JSON(response.HttpStatus, response)
 			c.Abort()
