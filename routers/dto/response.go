@@ -4,40 +4,46 @@ import (
 	"net/http"
 )
 
-type ResponseResult struct {
-	HttpStatus int         `json:"-"`
-	Message    string      `json:"message"`
-	Data       interface{} `json:"data,omitempty"`
-	Error      string      `json:"error,omitempty"`
+type compatibleError struct {
+	err     error
+	Message string `json:"message"`
 }
 
-func Success(data interface{}) ResponseResult {
-	return ResponseResult{
+type Response struct {
+	HttpStatus int               `json:"-"`
+	Data       interface{}       `json:"data,omitempty"`
+	Errors     []compatibleError `json:"errors,omitempty"`
+}
+
+func Success(data interface{}) Response {
+	return Response{
 		HttpStatus: http.StatusOK,
-		Message:    "this operation is successful",
 		Data:       data,
 	}
 }
 
-func Failure(httpStatus int, message string) ResponseResult {
-	return FailureWithError(httpStatus, message, nil)
+func Failure(httpStatus int, message string) Response {
+	return FailureWithCause(httpStatus, message, nil)
 }
 
-func FailureWithError(httpStatus int, message string, err error) ResponseResult {
-	var errMsg string
-	if err != nil {
-		errMsg = err.Error()
-	}
-
-	return ResponseResult{
+func FailureWithCause(httpStatus int, message string, cause error) Response {
+	return Response{
 		HttpStatus: httpStatus,
-		Message:    message,
-		Error:      errMsg,
+		Errors: []compatibleError{{
+			Message: message,
+			err:     cause,
+		}},
 	}
 }
 
-func ErrorResponse(err error) ResponseResult {
-	return ResponseResult{
-		Message: err.Error(),
+func ErrorResponse(err error) Response {
+	return Response{
+		Errors: []compatibleError{{
+			Message: err.Error(),
+		}},
 	}
+}
+
+func EmptyResponse() Response {
+	return Response{}
 }

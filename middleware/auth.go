@@ -14,7 +14,8 @@ func SignRequired() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		token := c.GetHeader("Authorization")
 		if claims, err := user.CheckAuthorizationHeader(token); err != nil {
-			c.JSON(http.StatusUnauthorized, dto.ErrorResponse(err))
+			response := dto.Failure(http.StatusUnauthorized, err.Error())
+			c.JSON(response.HttpStatus, response)
 			c.Abort()
 		} else {
 			userID, _ := strconv.ParseUint(claims.Subject, 10, 32)

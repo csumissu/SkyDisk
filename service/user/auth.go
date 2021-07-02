@@ -15,7 +15,7 @@ import (
 type AuthService struct {
 }
 
-func (service *AuthService) Login(input dto.LoginRequest) dto.ResponseResult {
+func (service *AuthService) Login(input dto.LoginRequest) dto.Response {
 	user, err := models.GetUserByUsername(input.Username)
 	if err != nil {
 		return dto.Failure(http.StatusBadRequest, "username or password is incorrect")
@@ -47,12 +47,12 @@ func (service *AuthService) Login(input dto.LoginRequest) dto.ResponseResult {
 	return dto.Success(response)
 }
 
-func (service *AuthService) Logout(token string) dto.ResponseResult {
-	if claims, err := util.ParseJwtToken(config.JwtCfg.SigningKey, token); err != nil {
-		return dto.FailureWithError(http.StatusBadRequest, "token could not be parsed", err)
+func (service *AuthService) Logout(token string) dto.Response {
+	if claims, err := CheckAuthorizationHeader(token); err != nil {
+		return dto.Failure(http.StatusUnauthorized, err.Error())
 	} else {
 		infra.RedisClient.Del(claims.Id)
-		return dto.Success(nil)
+		return dto.EmptyResponse()
 	}
 }
 
