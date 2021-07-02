@@ -12,7 +12,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
-	"github.com/csumissu/SkyDisk/graph/dto"
+	"github.com/csumissu/SkyDisk/routers/dto"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
 )
@@ -150,7 +150,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
-	{Name: "graph/user.graphqls", Input: `type Query {
+	{Name: "routers/graphql/schema/user.graphqls", Input: `type Query {
     searchUserProfile: UserProfileResponse!
 }
 
@@ -251,7 +251,7 @@ func (ec *executionContext) _Query_searchUserProfile(ctx context.Context, field 
 	}
 	res := resTmp.(*dto.UserProfileResponse)
 	fc.Result = res
-	return ec.marshalNUserProfileResponse2ᚖgithubᚗcomᚋcsumissuᚋSkyDiskᚋgraphᚋdtoᚐUserProfileResponse(ctx, field.Selections, res)
+	return ec.marshalNUserProfileResponse2ᚖgithubᚗcomᚋcsumissuᚋSkyDiskᚋroutersᚋdtoᚐUserProfileResponse(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -1896,11 +1896,11 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 	return res
 }
 
-func (ec *executionContext) marshalNUserProfileResponse2githubᚗcomᚋcsumissuᚋSkyDiskᚋgraphᚋdtoᚐUserProfileResponse(ctx context.Context, sel ast.SelectionSet, v dto.UserProfileResponse) graphql.Marshaler {
+func (ec *executionContext) marshalNUserProfileResponse2githubᚗcomᚋcsumissuᚋSkyDiskᚋroutersᚋdtoᚐUserProfileResponse(ctx context.Context, sel ast.SelectionSet, v dto.UserProfileResponse) graphql.Marshaler {
 	return ec._UserProfileResponse(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNUserProfileResponse2ᚖgithubᚗcomᚋcsumissuᚋSkyDiskᚋgraphᚋdtoᚐUserProfileResponse(ctx context.Context, sel ast.SelectionSet, v *dto.UserProfileResponse) graphql.Marshaler {
+func (ec *executionContext) marshalNUserProfileResponse2ᚖgithubᚗcomᚋcsumissuᚋSkyDiskᚋroutersᚋdtoᚐUserProfileResponse(ctx context.Context, sel ast.SelectionSet, v *dto.UserProfileResponse) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")

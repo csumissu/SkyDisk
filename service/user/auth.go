@@ -2,9 +2,9 @@ package user
 
 import (
 	"github.com/csumissu/SkyDisk/config"
-	"github.com/csumissu/SkyDisk/graph/dto"
 	"github.com/csumissu/SkyDisk/infra"
 	"github.com/csumissu/SkyDisk/models"
+	"github.com/csumissu/SkyDisk/routers/dto"
 	"github.com/csumissu/SkyDisk/util"
 	"net/http"
 	"strconv"

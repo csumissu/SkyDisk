@@ -1,4 +1,4 @@
-package graph
+package resolvers
 
 // This file will be automatically regenerated based on the schema, any resolver implementations
 // will be copied through when generating and any unknown code will be moved to the end.
@@ -7,8 +7,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/csumissu/SkyDisk/graph/dto"
-	"github.com/csumissu/SkyDisk/graph/generated"
+	"github.com/csumissu/SkyDisk/routers/dto"
+	"github.com/csumissu/SkyDisk/routers/graphql/generated"
 )
 
 func (r *queryResolver) SearchUserProfile(ctx context.Context) (*dto.UserProfileResponse, error) {
