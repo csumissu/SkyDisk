@@ -25,7 +25,7 @@ func init() {
 		},
 	})
 	if err != nil {
-		util.Log().Panic("can not connect to the database! %v", err)
+		util.Logger.Panic("can not connect to the database! %v", err)
 	}
 
 	db.Debug()

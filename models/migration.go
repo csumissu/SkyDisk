@@ -10,7 +10,7 @@ var db = infra.GormDB
 
 func init() {
 	if err := db.AutoMigrate(&User{}); err != nil {
-		util.Log().Panic("could not migrate schema, %v", err)
+		util.Logger.Panic("could not migrate schema, %v", err)
 	}
 
 	addDefaultUser()
@@ -27,7 +27,7 @@ func addDefaultUser() {
 		defaultUser.Password = "123"
 
 		if err := defaultUser.Create(); err != nil {
-			util.Log().Panic("fail to create default user, %v", err)
+			util.Logger.Panic("fail to create default user, %v", err)
 		}
 	}
 }

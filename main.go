@@ -15,6 +15,6 @@ func main() {
 	r := routers.InitRouters()
 	err := r.Run(fmt.Sprintf(":%d", config.ServerCfg.Port))
 	if err != nil {
-		util.Log().Panic("cannot start the server, %s", err)
+		util.Logger.Panic("cannot start the server, %s", err)
 	}
 }

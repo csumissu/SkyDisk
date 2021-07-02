@@ -41,7 +41,7 @@ type jwt struct {
 func init() {
 	cfg, err := ini.Load("config/resources/dev.ini")
 	if err != nil {
-		util.Log().Panic("fail to read ini file: %v", err)
+		util.Logger.Panic("fail to read ini file: %v", err)
 	}
 
 	loadSections(cfg)
@@ -59,7 +59,7 @@ func loadSections(cfg *ini.File) {
 	for sectionName, sectionStruct := range sections {
 		err := cfg.Section(sectionName).MapTo(sectionStruct)
 		if err != nil {
-			util.Log().Panic("fail to extract %s section from ini file, %v", sectionName, err)
+			util.Logger.Panic("fail to extract %s section from ini file, %v", sectionName, err)
 		}
 	}
 }

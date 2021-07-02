@@ -37,16 +37,12 @@ var prefixes = map[int]string{
 	LevelFatal: "[FATAL]",
 }
 
-var instance *logger
+var Logger *logger
 
 func InitLogger(level int) {
-	instance = &logger{
+	Logger = &logger{
 		level: level,
 	}
-}
-
-func Log() *logger {
-	return instance
 }
 
 func (logger *logger) Panic(format string, v ...interface{}) {

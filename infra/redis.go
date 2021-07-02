@@ -9,40 +9,36 @@ import (
 	"time"
 )
 
-type RedisClient struct {
+type redisClient struct {
 	client *redis.Client
 }
 
-var instance *RedisClient
+var RedisClient *redisClient
 var ctx = context.Background()
 
 func init() {
-	redisClient := redis.NewClient(&redis.Options{
+	client := redis.NewClient(&redis.Options{
 		Addr:     fmt.Sprintf("%s:%d", config.RedisCfg.Host, config.RedisCfg.Port),
 		Password: config.RedisCfg.Password,
 		DB:       config.RedisCfg.DB,
 	})
 
-	instance = &RedisClient{redisClient}
+	RedisClient = &redisClient{client}
 }
 
-func Redis() *RedisClient {
-	return instance
-}
-
-func (redis *RedisClient) Set(key string, value interface{}, expiration time.Duration) bool {
+func (redis *redisClient) Set(key string, value interface{}, expiration time.Duration) bool {
 	err := redis.client.Set(ctx, key, value, expiration).Err()
 	if err != nil {
-		util.Log().Error("set redis value failed, key: %s, value: %v", key, value, err)
+		util.Logger.Error("set redis value failed, key: %s, value: %v", key, value, err)
 		return false
 	}
 	return true
 }
 
-func (redis *RedisClient) Del(keys ...string) bool {
+func (redis *redisClient) Del(keys ...string) bool {
 	err := redis.client.Del(ctx, keys...).Err()
 	if err != nil {
-		util.Log().Error("delete redis key failed, keys: %v", keys, err)
+		util.Logger.Error("delete redis key failed, keys: %v", keys, err)
 		return false
 	}
 	return true

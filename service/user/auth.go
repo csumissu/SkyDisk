@@ -32,7 +32,7 @@ func (service *AuthService) Login(input dto.LoginRequest) models.ResponseResult 
 	if err != nil {
 		return models.Failure(http.StatusInternalServerError, "token could not be generated")
 	}
-	infra.Redis().Set(claims.Id, user.ID, expirationDuration)
+	infra.RedisClient.Set(claims.Id, user.ID, expirationDuration)
 
 	response := &dto.LoginResponse{
 		UserID:   int(user.ID),
@@ -50,7 +50,7 @@ func (service *AuthService) Logout(token string) models.ResponseResult {
 	if claims, err := util.ParseJwtToken(config.JwtCfg.SigningKey, token); err != nil {
 		return models.FailureWithError(http.StatusBadRequest, "token could not be parsed", err)
 	} else {
-		infra.Redis().Del(claims.Id)
+		infra.RedisClient.Del(claims.Id)
 		return models.Success(nil)
 	}
 }
