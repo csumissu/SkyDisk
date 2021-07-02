@@ -3,7 +3,7 @@ package infra
 import (
 	"fmt"
 	"github.com/csumissu/SkyDisk/config"
-	"github.com/csumissu/SkyDisk/util/logger"
+	"github.com/csumissu/SkyDisk/util"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
@@ -25,7 +25,7 @@ func init() {
 		},
 	})
 	if err != nil {
-		logger.Fatal("can not connect to the database! %v", err)
+		util.Log().Panic("can not connect to the database! %v", err)
 	}
 
 	db.Debug()

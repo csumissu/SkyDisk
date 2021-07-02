@@ -4,15 +4,17 @@ import (
 	"fmt"
 	"github.com/csumissu/SkyDisk/config"
 	"github.com/csumissu/SkyDisk/graph"
-	"github.com/csumissu/SkyDisk/util/logger"
+	"github.com/csumissu/SkyDisk/util"
 )
 
-func main() {
-	logger.InitLogger(logger.LevelDebug)
+func init() {
+	util.InitLogger(util.LevelDebug)
+}
 
+func main() {
 	r := graph.InitRouters()
 	err := r.Run(fmt.Sprintf(":%d", config.ServerCfg.Port))
 	if err != nil {
-		logger.Fatal("cannot start the server, %s", err)
+		util.Log().Panic("cannot start the server, %s", err)
 	}
 }

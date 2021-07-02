@@ -1,8 +1,7 @@
 package config
 
 import (
-	"github.com/csumissu/SkyDisk/util/logger"
-
+	"github.com/csumissu/SkyDisk/util"
 	"gopkg.in/ini.v1"
 )
 
@@ -42,7 +41,7 @@ type jwt struct {
 func init() {
 	cfg, err := ini.Load("config/resources/dev.ini")
 	if err != nil {
-		logger.Fatal("fail to read ini file: %v", err)
+		util.Log().Panic("fail to read ini file: %v", err)
 	}
 
 	loadSections(cfg)
@@ -60,7 +59,7 @@ func loadSections(cfg *ini.File) {
 	for sectionName, sectionStruct := range sections {
 		err := cfg.Section(sectionName).MapTo(sectionStruct)
 		if err != nil {
-			logger.Fatal("fail to extract %s section from ini file, %v", sectionName, err)
+			util.Log().Panic("fail to extract %s section from ini file, %v", sectionName, err)
 		}
 	}
 }

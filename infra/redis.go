@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/csumissu/SkyDisk/config"
-	"github.com/csumissu/SkyDisk/util/logger"
+	"github.com/csumissu/SkyDisk/util"
 	"github.com/go-redis/redis/v8"
 	"time"
 )
@@ -33,7 +33,7 @@ func Redis() *RedisClient {
 func (redis *RedisClient) Set(key string, value interface{}, expiration time.Duration) bool {
 	err := redis.client.Set(ctx, key, value, expiration).Err()
 	if err != nil {
-		logger.Error("set redis value failed, key: %s, value: %v", key, value, err)
+		util.Log().Error("set redis value failed, key: %s, value: %v", key, value, err)
 		return false
 	}
 	return true
@@ -42,7 +42,7 @@ func (redis *RedisClient) Set(key string, value interface{}, expiration time.Dur
 func (redis *RedisClient) Del(keys ...string) bool {
 	err := redis.client.Del(ctx, keys...).Err()
 	if err != nil {
-		logger.Error("delete redis key failed, keys: %v", keys, err)
+		util.Log().Error("delete redis key failed, keys: %v", keys, err)
 		return false
 	}
 	return true

@@ -2,7 +2,7 @@ package models
 
 import (
 	"github.com/csumissu/SkyDisk/infra"
-	"github.com/csumissu/SkyDisk/util/logger"
+	"github.com/csumissu/SkyDisk/util"
 	"gorm.io/gorm"
 )
 
@@ -10,7 +10,7 @@ var db = infra.GormDB
 
 func init() {
 	if err := db.AutoMigrate(&User{}); err != nil {
-		logger.Fatal("could not migrate schema, %v", err)
+		util.Log().Panic("could not migrate schema, %v", err)
 	}
 
 	addDefaultUser()
@@ -27,7 +27,7 @@ func addDefaultUser() {
 		defaultUser.Password = "123"
 
 		if err := defaultUser.Create(); err != nil {
-			logger.Fatal("fail to create default user, %v", err)
+			util.Log().Panic("fail to create default user, %v", err)
 		}
 	}
 }

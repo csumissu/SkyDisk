@@ -1,4 +1,4 @@
-package logger
+package util
 
 import (
 	"fmt"
@@ -37,47 +37,51 @@ var prefixes = map[int]string{
 	LevelFatal: "[FATAL]",
 }
 
-var defaultLogger *logger
+var instance *logger
 
 func InitLogger(level int) {
-	defaultLogger = &logger{
+	instance = &logger{
 		level: level,
 	}
 }
 
-func Fatal(format string, v ...interface{}) {
+func Log() *logger {
+	return instance
+}
+
+func (logger *logger) Panic(format string, v ...interface{}) {
 	msg := fmt.Sprintf(format, v...)
-	innerPrintln(LevelFatal, msg)
+	innerPrintln(logger, LevelFatal, msg)
 	panic(msg)
 }
 
-func Error(format string, v ...interface{}) {
+func (logger *logger) Error(format string, v ...interface{}) {
 	msg := fmt.Sprintf(format, v...)
-	innerPrintln(LevelError, msg)
+	innerPrintln(logger, LevelError, msg)
 }
 
-func Warn(format string, v ...interface{}) {
+func (logger *logger) Warn(format string, v ...interface{}) {
 	msg := fmt.Sprintf(format, v...)
-	innerPrintln(LevelWarn, msg)
+	innerPrintln(logger, LevelWarn, msg)
 }
 
-func Info(format string, v ...interface{}) {
+func (logger *logger) Info(format string, v ...interface{}) {
 	msg := fmt.Sprintf(format, v...)
-	innerPrintln(LevelInfo, msg)
+	innerPrintln(logger, LevelInfo, msg)
 }
 
-func Debug(format string, v ...interface{}) {
+func (logger *logger) Debug(format string, v ...interface{}) {
 	msg := fmt.Sprintf(format, v...)
-	innerPrintln(LevelDebug, msg)
+	innerPrintln(logger, LevelDebug, msg)
 }
 
-func innerPrintln(level int, msg string) {
-	if level < defaultLogger.level {
+func innerPrintln(logger *logger, level int, msg string) {
+	if level < logger.level {
 		return
 	}
 
-	defaultLogger.mutex.Lock()
-	defer defaultLogger.mutex.Unlock()
+	logger.mutex.Lock()
+	defer logger.mutex.Unlock()
 
 	file, line := getCallerFileAndLine()
 
