@@ -2,12 +2,12 @@ package controllers
 
 import (
 	"github.com/csumissu/SkyDisk/routers/dto"
-	"github.com/csumissu/SkyDisk/service/user"
+	"github.com/csumissu/SkyDisk/service"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
-var authService = new(user.AuthService)
+var authService = new(service.AuthService)
 
 func Login(c *gin.Context) {
 	var request dto.LoginRequest

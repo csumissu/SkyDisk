@@ -2,6 +2,7 @@ package util
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -16,7 +17,7 @@ type Claims struct {
 const TokenType = "Bearer"
 const ISSUER = "csumissu.xyz"
 
-func NewClaims(subject string, expirationDuration time.Duration) Claims {
+func NewClaims(userID uint, expirationDuration time.Duration) Claims {
 	currentTime := time.Now()
 	claims := Claims{
 		StandardClaims: jwt.StandardClaims{
@@ -24,7 +25,7 @@ func NewClaims(subject string, expirationDuration time.Duration) Claims {
 			Issuer:    ISSUER,
 			IssuedAt:  currentTime.Unix(),
 			NotBefore: currentTime.Unix(),
-			Subject:   subject,
+			Subject:   strconv.FormatUint(uint64(userID), 10),
 			ExpiresAt: currentTime.Add(expirationDuration).Unix(),
 		},
 	}
@@ -57,15 +58,15 @@ func ParseJwtToken(signingKey string, token string) (*Claims, error) {
 	return nil, fmt.Errorf("jwt token is invalid")
 }
 
-func (claims Claims) Valid() error {
+func (c Claims) Valid() error {
 	var vErr *jwt.ValidationError
-	if err := claims.StandardClaims.Valid(); err == nil {
+	if err := c.StandardClaims.Valid(); err == nil {
 		vErr = new(jwt.ValidationError)
 	} else {
 		vErr = err.(*jwt.ValidationError)
 	}
 
-	if !claims.VerifyIssuer(ISSUER, true) {
+	if !c.VerifyIssuer(ISSUER, true) {
 		vErr.Inner = fmt.Errorf("token has no issuer")
 		vErr.Errors |= jwt.ValidationErrorIssuer
 	}
@@ -75,6 +76,14 @@ func (claims Claims) Valid() error {
 	}
 
 	return vErr
+}
+
+func (c *Claims) GetUserID() uint {
+	subject, err := strconv.ParseUint(c.Subject, 10, 32)
+	if err != nil {
+		Logger.Panic("user id in jwt token is incorrect, subject: %s", c.Subject)
+	}
+	return uint(subject)
 }
 
 func convertMapClaimsToLocalClaims(claims jwt.MapClaims) *Claims {

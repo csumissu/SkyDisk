@@ -1,6 +1,8 @@
 package resolvers
 
-import "github.com/csumissu/SkyDisk/service/user"
+import (
+	"github.com/csumissu/SkyDisk/service"
+)
 
 // This file will not be regenerated automatically.
 //
@@ -9,5 +11,5 @@ import "github.com/csumissu/SkyDisk/service/user"
 //go:generate go run github.com/99designs/gqlgen
 
 type Resolver struct {
-	user.UserService
+	service.UserService
 }

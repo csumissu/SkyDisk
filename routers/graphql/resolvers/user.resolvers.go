@@ -6,13 +6,12 @@ package resolvers
 import (
 	"context"
 
-	"github.com/csumissu/SkyDisk/middleware"
 	"github.com/csumissu/SkyDisk/routers/dto"
 	"github.com/csumissu/SkyDisk/routers/graphql/generated"
 )
 
 func (r *queryResolver) SearchUserProfile(ctx context.Context) (*dto.UserProfileResponse, error) {
-	return r.UserService.SearchUserProfile(middleware.GetCurrentUserID(ctx))
+	return r.UserService.SearchUserProfile(ctx)
 }
 
 // Query returns generated.QueryResolver implementation.

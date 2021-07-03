@@ -1,4 +1,4 @@
-package user
+package service
 
 import (
 	"fmt"
@@ -8,7 +8,6 @@ import (
 	"github.com/csumissu/SkyDisk/routers/dto"
 	"github.com/csumissu/SkyDisk/util"
 	"net/http"
-	"strconv"
 	"time"
 )
 
@@ -28,7 +27,7 @@ func (service *AuthService) Login(input dto.LoginRequest) dto.Response {
 	}
 
 	expirationDuration := time.Duration(config.JwtCfg.ExpirationHours) * time.Hour
-	claims := util.NewClaims(strconv.FormatUint(uint64(user.ID), 10), expirationDuration)
+	claims := util.NewClaims(user.ID, expirationDuration)
 	token, err := util.GenerateJwtToken(config.JwtCfg.SigningKey, claims)
 	if err != nil {
 		return dto.Failure(http.StatusInternalServerError, "token could not be generated")
