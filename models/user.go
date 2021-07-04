@@ -17,25 +17,25 @@ const (
 	Banned
 )
 
-func GetUserByUsername(username string) (User, error) {
-	var user User
-	result := db.Where("username = ?", username).First(&user)
+func GetUserByUsername(username string) (*User, error) {
+	user := &User{}
+	result := db.Where("username = ?", username).First(user)
 	return user, result.Error
 }
 
-func GetUserByID(ID interface{}) (User, error) {
-	var user User
-	result := db.First(&user, ID)
+func GetUserByID(ID interface{}) (*User, error) {
+	user := &User{}
+	result := db.First(user, ID)
 	return user, result.Error
 }
 
-func GetActiveUserByID(ID interface{}) (User, error) {
-	var user User
-	result := db.Where("status = ?", Active).First(&user, ID)
+func GetActiveUserByID(ID interface{}) (*User, error) {
+	user := &User{}
+	result := db.Where("status = ?", Active).First(user, ID)
 	return user, result.Error
 }
 
-func (user *User) CheckPassword(password string) (bool, error) {
+func (user User) CheckPassword(password string) (bool, error) {
 	return user.Password == password, nil
 }
 

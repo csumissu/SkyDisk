@@ -12,9 +12,8 @@ type UserService struct {
 }
 
 func (service *UserService) SearchUserProfile(ctx context.Context) (*dto.UserProfileResponse, error) {
-	userID := util.GetCurrentUserID(ctx)
-	if user, err := models.GetActiveUserByID(userID); err != nil {
-		return nil, gqlerror.Errorf("user could not be found")
+	if user, err := GetCurrentUser(ctx); err != nil {
+		return nil, err
 	} else {
 		return &dto.UserProfileResponse{
 			ID:       int(user.ID),
@@ -22,4 +21,13 @@ func (service *UserService) SearchUserProfile(ctx context.Context) (*dto.UserPro
 			Nickname: user.Nickname,
 		}, nil
 	}
+}
+
+func GetCurrentUser(ctx context.Context) (*models.User, error) {
+	if userID, ok := util.GetCurrentUserID(ctx); ok {
+		if user, err := models.GetActiveUserByID(userID); err == nil {
+			return user, nil
+		}
+	}
+	return nil, gqlerror.Errorf("user could not be found")
 }
