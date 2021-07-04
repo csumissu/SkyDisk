@@ -43,7 +43,7 @@ func (fs *FileSystem) Upload(ctx context.Context, info FileInfo) error {
 		return err
 	}
 
-	err = fs.Trigger(ctx, HookAfterUpload)
+	err = fs.Trigger(HookAfterUpload, info)
 	if err != nil {
 		return err
 	}

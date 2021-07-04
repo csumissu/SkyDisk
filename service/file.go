@@ -5,6 +5,7 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/csumissu/SkyDisk/infra/filesystem"
 	"github.com/csumissu/SkyDisk/routers/dto"
+	"github.com/csumissu/SkyDisk/util"
 )
 
 type FileService struct {
@@ -30,7 +31,7 @@ func (service *FileService) SingleUpload(ctx context.Context, path string, uploa
 		VirtualPath: path,
 	}
 
-	fs.Use(filesystem.HookAfterUpload, GenericAfterUpload)
+	fs.Use(filesystem.HookAfterUpload, HookGenericAfterUpload)
 	err = fs.Upload(ctx, fileInfo)
 	if err != nil {
 		return false, err
@@ -43,6 +44,9 @@ func (service *FileService) ListObjects(ctx context.Context, path string) ([]*dt
 	return make([]*dto.ObjectResponse, 0), nil
 }
 
-func GenericAfterUpload(ctx context.Context, fs *filesystem.FileSystem) error {
+func HookGenericAfterUpload(fs *filesystem.FileSystem, params filesystem.HookParams) error {
+	info := params.MustGet(filesystem.FileInfo{}).(filesystem.FileInfo)
+	util.Logger.Debug("genericAfterUpload, fileInfo: %v, params: %v", info, params)
+
 	return nil
 }

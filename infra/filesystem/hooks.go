@@ -1,13 +1,14 @@
 package filesystem
 
 import (
-	"context"
 	"github.com/csumissu/SkyDisk/util"
 )
 
 const HookAfterUpload = "AfterUpload"
 
-type Hook func(ctx context.Context, fs *FileSystem) error
+type HookParams map[string]interface{}
+
+type Hook func(fs *FileSystem, params HookParams) error
 
 func (fs *FileSystem) Use(name string, hook Hook) {
 	fs.mutex.Lock()
@@ -23,17 +24,22 @@ func (fs *FileSystem) Use(name string, hook Hook) {
 	}
 }
 
-func (fs *FileSystem) Trigger(ctx context.Context, name string) error {
+func (fs *FileSystem) Trigger(name string, params ...interface{}) error {
 	fs.mutex.RLocker().Lock()
 	defer fs.mutex.RLocker().Unlock()
 
 	if hooks, ok := fs.hooks[name]; ok {
+		actualParams := util.Convert(params...)
 		for _, hook := range hooks {
-			if err := hook(ctx, fs); err != nil {
+			if err := hook(fs, actualParams); err != nil {
 				util.Logger.Warn("trigger hook failed, name: %s, hook: %v", name, hook, err)
 				return err
 			}
 		}
 	}
 	return nil
+}
+
+func (p HookParams) MustGet(i interface{}) interface{} {
+	return p[util.GetTypeName(i)]
 }
