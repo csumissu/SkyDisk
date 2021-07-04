@@ -2,9 +2,11 @@ package filesystem
 
 import (
 	"context"
+	"fmt"
 	"github.com/csumissu/SkyDisk/infra/filesystem/handlers/local"
 	"github.com/csumissu/SkyDisk/models"
 	"io"
+	"path"
 	"sync"
 )
 
@@ -16,11 +18,11 @@ type FileSystem struct {
 }
 
 type FileInfo struct {
-	File     io.Reader
-	Name     string
-	Size     uint64
-	MIMEType string
-	Path     string
+	File        io.Reader
+	Name        string
+	Size        uint64
+	MIMEType    string
+	VirtualPath string
 }
 
 func NewFileSystem(user *models.User) (*FileSystem, error) {
@@ -35,7 +37,8 @@ func (fs *FileSystem) determineHandler() {
 }
 
 func (fs *FileSystem) Upload(ctx context.Context, info FileInfo) error {
-	err := fs.handler.Put(ctx, info.File, "", info.Size)
+	objectKey := fs.generateObjectKey(info)
+	err := fs.handler.Put(ctx, info.File, objectKey, info.Size)
 	if err != nil {
 		return err
 	}
@@ -46,4 +49,8 @@ func (fs *FileSystem) Upload(ctx context.Context, info FileInfo) error {
 	}
 
 	return nil
+}
+
+func (fs *FileSystem) generateObjectKey(info FileInfo) string {
+	return path.Join(fmt.Sprintf("uploads/%d/%s", fs.User.ID, info.VirtualPath), info.Name)
 }

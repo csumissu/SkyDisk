@@ -23,11 +23,11 @@ func (service *FileService) SingleUpload(ctx context.Context, path string, uploa
 	defer fs.Recycle()
 
 	fileInfo := filesystem.FileInfo{
-		File:     upload.File,
-		Name:     upload.Filename,
-		Size:     uint64(upload.Size),
-		MIMEType: upload.ContentType,
-		Path:     path,
+		File:        upload.File,
+		Name:        upload.Filename,
+		Size:        uint64(upload.Size),
+		MIMEType:    upload.ContentType,
+		VirtualPath: path,
 	}
 
 	fs.Use(filesystem.HookAfterUpload, GenericAfterUpload)
