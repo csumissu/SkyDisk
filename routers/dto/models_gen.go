@@ -2,6 +2,17 @@
 
 package dto
 
+type ObjectResponse struct {
+	ID        int     `json:"id"`
+	Name      string  `json:"name"`
+	Path      string  `json:"path"`
+	Type      string  `json:"type"`
+	Size      *int    `json:"size"`
+	MimeType  *string `json:"mimeType"`
+	UpdatedAt int     `json:"updatedAt"`
+	CreatedAt int     `json:"createdAt"`
+}
+
 type UserProfileResponse struct {
 	ID       int    `json:"id"`
 	Username string `json:"username"`

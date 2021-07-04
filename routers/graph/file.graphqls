@@ -1,0 +1,20 @@
+scalar Upload
+
+extend type Query {
+    listObjects(path: String!): [ObjectResponse]!
+}
+
+type Mutation {
+    singleUpload(path: String!, file: Upload!): Boolean!
+}
+
+type ObjectResponse {
+    id: ID!
+    name: String!
+    path: String!
+    type: String!
+    size: Int
+    mimeType: String
+    updatedAt: Int!
+    createdAt: Int!
+}

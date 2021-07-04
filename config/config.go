@@ -14,7 +14,9 @@ type database struct {
 }
 
 type server struct {
-	Port int `ini:"port"`
+	Port                 int   `ini:"port"`
+	MultipartMaxMemoryMB int64 `ini:"multipartMaxMemoryMB"`
+	MultipartMaxUploadMB int64 `ini:"multipartMaxUploadMB"`
 }
 
 type cors struct {
