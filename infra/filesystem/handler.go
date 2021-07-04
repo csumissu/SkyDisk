@@ -6,5 +6,5 @@ import (
 )
 
 type Handler interface {
-	Put(ctx context.Context, file io.ReadCloser, dest string, size uint64) error
+	Put(ctx context.Context, file io.Reader, dest string, size uint64) error
 }

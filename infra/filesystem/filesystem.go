@@ -1,16 +1,26 @@
 package filesystem
 
 import (
+	"context"
 	"github.com/csumissu/SkyDisk/infra/filesystem/handlers/local"
 	"github.com/csumissu/SkyDisk/models"
+	"io"
 	"sync"
 )
 
 type FileSystem struct {
 	User    *models.User
-	Handler Handler
-	Hooks   map[string][]Hook
-	mutex   sync.Mutex
+	handler Handler
+	hooks   map[string][]Hook
+	mutex   sync.RWMutex
+}
+
+type FileInfo struct {
+	File     io.Reader
+	Name     string
+	Size     uint64
+	MIMEType string
+	Path     string
 }
 
 func NewFileSystem(user *models.User) (*FileSystem, error) {
@@ -21,5 +31,19 @@ func NewFileSystem(user *models.User) (*FileSystem, error) {
 }
 
 func (fs *FileSystem) determineHandler() {
-	fs.Handler = local.Handler{}
+	fs.handler = local.Handler{}
+}
+
+func (fs *FileSystem) Upload(ctx context.Context, info FileInfo) error {
+	err := fs.handler.Put(ctx, info.File, "", info.Size)
+	if err != nil {
+		return err
+	}
+
+	err = fs.Trigger(ctx, HookAfterUpload)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

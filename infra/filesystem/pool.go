@@ -16,12 +16,13 @@ func getEmptyFS() *FileSystem {
 func (fs *FileSystem) Recycle() {
 	fs.mutex.Lock()
 	defer fs.mutex.Unlock()
+
 	fs.reset()
 	fsPool.Put(fs)
 }
 
 func (fs *FileSystem) reset() {
 	fs.User = nil
-	fs.Handler = nil
-	fs.Hooks = make(map[string][]Hook)
+	fs.handler = nil
+	fs.hooks = nil
 }

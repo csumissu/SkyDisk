@@ -5,18 +5,29 @@ import (
 	"github.com/csumissu/SkyDisk/util"
 )
 
+const HookAfterUpload = "AfterUpload"
+
 type Hook func(ctx context.Context, fs *FileSystem) error
 
 func (fs *FileSystem) Use(name string, hook Hook) {
-	if _, ok := fs.Hooks[name]; ok {
-		fs.Hooks[name] = append(fs.Hooks[name], hook)
+	fs.mutex.Lock()
+	defer fs.mutex.Unlock()
+
+	if fs.hooks == nil {
+		fs.hooks = make(map[string][]Hook)
+	}
+	if _, ok := fs.hooks[name]; ok {
+		fs.hooks[name] = append(fs.hooks[name], hook)
 	} else {
-		fs.Hooks[name] = []Hook{hook}
+		fs.hooks[name] = []Hook{hook}
 	}
 }
 
 func (fs *FileSystem) Trigger(ctx context.Context, name string) error {
-	if hooks, ok := fs.Hooks[name]; ok {
+	fs.mutex.RLocker().Lock()
+	defer fs.mutex.RLocker().Unlock()
+
+	if hooks, ok := fs.hooks[name]; ok {
 		for _, hook := range hooks {
 			if err := hook(ctx, fs); err != nil {
 				util.Logger.Warn("trigger hook failed, name: %s, hook: %v", name, hook, err)

@@ -2,10 +2,10 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"github.com/csumissu/SkyDisk/models"
 	"github.com/csumissu/SkyDisk/routers/dto"
 	"github.com/csumissu/SkyDisk/util"
-	"github.com/vektah/gqlparser/v2/gqlerror"
 )
 
 type UserService struct {
@@ -29,5 +29,5 @@ func GetCurrentUser(ctx context.Context) (*models.User, error) {
 			return user, nil
 		}
 	}
-	return nil, gqlerror.Errorf("user could not be found")
+	return nil, fmt.Errorf("user could not be found")
 }
