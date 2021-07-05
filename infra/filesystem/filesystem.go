@@ -37,13 +37,14 @@ func (fs *FileSystem) determineHandler() {
 }
 
 func (fs *FileSystem) Upload(ctx context.Context, info FileInfo) error {
+	ctx = context.WithValue(ctx, FileInfoCtx, info)
 	objectKey := fs.generateObjectKey(info)
 
 	if err := fs.handler.Put(ctx, info.File, objectKey, info.Size); err != nil {
 		return err
 	}
 
-	return fs.Trigger(HookAfterUpload, info)
+	return fs.Trigger(ctx, HookAfterUpload)
 }
 
 func (fs *FileSystem) generateObjectKey(info FileInfo) string {

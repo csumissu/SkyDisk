@@ -48,9 +48,9 @@ func (service *FileService) ListObjects(ctx context.Context, path string) ([]*dt
 	return make([]*dto.ObjectResponse, 0), nil
 }
 
-func HookGenericAfterUpload(fs *filesystem.FileSystem, params filesystem.HookParams) error {
-	info := params.MustGet(filesystem.FileInfo{}).(filesystem.FileInfo)
-	util.Logger.Debug("genericAfterUpload, fileInfo: %v, params: %v", info, params)
+func HookGenericAfterUpload(ctx context.Context, fs *filesystem.FileSystem) error {
+	info := ctx.Value(filesystem.FileInfoCtx).(filesystem.FileInfo)
+	util.Logger.Debug("genericAfterUpload, fileInfo: %v", info)
 
 	folder, err := createDirectory(fs.User.ID, info.VirtualPath)
 	if err != nil {
