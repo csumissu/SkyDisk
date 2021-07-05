@@ -8,8 +8,10 @@ import (
 	"time"
 )
 
+type LogLevel int
+
 const (
-	LevelDebug = iota
+	LevelDebug LogLevel = iota
 	LevelInfo
 	LevelWarn
 	LevelError
@@ -17,11 +19,11 @@ const (
 )
 
 type logger struct {
-	level int
+	level LogLevel
 	mutex sync.Mutex
 }
 
-var colors = map[int]*color.Color{
+var colors = map[LogLevel]*color.Color{
 	LevelDebug: color.New(color.FgWhite).Add(color.Bold),
 	LevelInfo:  color.New(color.FgHiWhite).Add(color.Bold),
 	LevelWarn:  color.New(color.FgYellow).Add(color.Bold),
@@ -29,7 +31,7 @@ var colors = map[int]*color.Color{
 	LevelFatal: color.New(color.BgRed).Add(color.Bold),
 }
 
-var prefixes = map[int]string{
+var prefixes = map[LogLevel]string{
 	LevelDebug: "[DEBUG]",
 	LevelInfo:  "[INFO]",
 	LevelWarn:  "[WARN]",
@@ -39,7 +41,7 @@ var prefixes = map[int]string{
 
 var Logger *logger
 
-func InitLogger(level int) {
+func InitLogger(level LogLevel) {
 	Logger = &logger{
 		level: level,
 	}
@@ -71,7 +73,7 @@ func (logger *logger) Debug(format string, v ...interface{}) {
 	innerPrintln(logger, LevelDebug, msg)
 }
 
-func innerPrintln(logger *logger, level int, msg string) {
+func innerPrintln(logger *logger, level LogLevel, msg string) {
 	if level < logger.level {
 		return
 	}

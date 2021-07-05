@@ -9,11 +9,13 @@ type User struct {
 	Username string `gorm:"not null;index:idx_user_name,unique"`
 	Password string `gorm:"not null"`
 	Nickname string `gorm:"not null"`
-	Status   int    `gorm:"not null"`
+	Status   Status `gorm:"not null"`
 }
 
+type Status int
+
 const (
-	Active = iota
+	Active Status = iota
 	Banned
 )
 
