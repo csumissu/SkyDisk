@@ -9,7 +9,7 @@ import (
 var db = infra.GormDB
 
 func init() {
-	if err := db.AutoMigrate(&User{}); err != nil {
+	if err := db.AutoMigrate(&User{}, &Folder{}, &File{}); err != nil {
 		util.Logger.Panic("could not migrate schema, %v", err)
 	}
 
