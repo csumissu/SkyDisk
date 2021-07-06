@@ -1,11 +1,8 @@
-scalar Upload
-scalar Time
-
 extend type Query {
     listObjects(path: String!): [ObjectResponse]!
 }
 
-type Mutation {
+extend type Mutation {
     singleUpload(path: String!, file: Upload!): Boolean!
 }
 
@@ -14,7 +11,7 @@ type ObjectResponse {
     name: String!
     path: String!
     type: String!
-    size: Int
+    size: Uint
     mimeType: String
     updatedAt: Time!
     createdAt: Time!

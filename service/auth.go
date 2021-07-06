@@ -35,7 +35,7 @@ func (service *AuthService) Login(input dto.LoginRequest) dto.Response {
 	infra.RedisClient.Set(claims.Id, user.ID, expirationDuration)
 
 	response := &dto.LoginResponse{
-		UserID:   int(user.ID),
+		UserID:   user.ID,
 		Nickname: user.Nickname,
 		AccessToken: dto.AccessTokenResponse{
 			Type:     util.TokenType,

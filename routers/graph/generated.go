@@ -75,8 +75,8 @@ type MutationResolver interface {
 	SingleUpload(ctx context.Context, path string, file graphql.Upload) (bool, error)
 }
 type QueryResolver interface {
-	SearchUserProfile(ctx context.Context) (*dto.UserProfileResponse, error)
 	ListObjects(ctx context.Context, path string) ([]*dto.ObjectResponse, error)
+	SearchUserProfile(ctx context.Context) (*dto.UserProfileResponse, error)
 }
 
 type executableSchema struct {
@@ -266,14 +266,18 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
-	{Name: "routers/graph/file.graphqls", Input: `scalar Upload
+	{Name: "routers/graph/basic.graphqls", Input: `scalar Upload
 scalar Time
+scalar Uint
 
-extend type Query {
+type Query
+
+type Mutation`, BuiltIn: false},
+	{Name: "routers/graph/file.graphqls", Input: `extend type Query {
     listObjects(path: String!): [ObjectResponse]!
 }
 
-type Mutation {
+extend type Mutation {
     singleUpload(path: String!, file: Upload!): Boolean!
 }
 
@@ -282,12 +286,12 @@ type ObjectResponse {
     name: String!
     path: String!
     type: String!
-    size: Int
+    size: Uint
     mimeType: String
     updatedAt: Time!
     createdAt: Time!
 }`, BuiltIn: false},
-	{Name: "routers/graph/user.graphqls", Input: `type Query {
+	{Name: "routers/graph/user.graphqls", Input: `extend type Query {
     searchUserProfile: UserProfileResponse!
 }
 
@@ -467,9 +471,9 @@ func (ec *executionContext) _ObjectResponse_id(ctx context.Context, field graphq
 		}
 		return graphql.Null
 	}
-	res := resTmp.(int)
+	res := resTmp.(uint)
 	fc.Result = res
-	return ec.marshalNID2int(ctx, field.Selections, res)
+	return ec.marshalNID2uint(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _ObjectResponse_name(ctx context.Context, field graphql.CollectedField, obj *dto.ObjectResponse) (ret graphql.Marshaler) {
@@ -604,9 +608,9 @@ func (ec *executionContext) _ObjectResponse_size(ctx context.Context, field grap
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*int)
+	res := resTmp.(*uint)
 	fc.Result = res
-	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+	return ec.marshalOUint2ᚖuint(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _ObjectResponse_mimeType(ctx context.Context, field graphql.CollectedField, obj *dto.ObjectResponse) (ret graphql.Marshaler) {
@@ -711,41 +715,6 @@ func (ec *executionContext) _ObjectResponse_createdAt(ctx context.Context, field
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Query_searchUserProfile(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Query",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   true,
-		IsResolver: true,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().SearchUserProfile(rctx)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*dto.UserProfileResponse)
-	fc.Result = res
-	return ec.marshalNUserProfileResponse2ᚖgithubᚗcomᚋcsumissuᚋSkyDiskᚋroutersᚋdtoᚐUserProfileResponse(ctx, field.Selections, res)
-}
-
 func (ec *executionContext) _Query_listObjects(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -786,6 +755,41 @@ func (ec *executionContext) _Query_listObjects(ctx context.Context, field graphq
 	res := resTmp.([]*dto.ObjectResponse)
 	fc.Result = res
 	return ec.marshalNObjectResponse2ᚕᚖgithubᚗcomᚋcsumissuᚋSkyDiskᚋroutersᚋdtoᚐObjectResponse(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_searchUserProfile(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().SearchUserProfile(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*dto.UserProfileResponse)
+	fc.Result = res
+	return ec.marshalNUserProfileResponse2ᚖgithubᚗcomᚋcsumissuᚋSkyDiskᚋroutersᚋdtoᚐUserProfileResponse(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -889,9 +893,9 @@ func (ec *executionContext) _UserProfileResponse_id(ctx context.Context, field g
 		}
 		return graphql.Null
 	}
-	res := resTmp.(int)
+	res := resTmp.(uint)
 	fc.Result = res
-	return ec.marshalNID2int(ctx, field.Selections, res)
+	return ec.marshalNID2uint(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _UserProfileResponse_username(ctx context.Context, field graphql.CollectedField, obj *dto.UserProfileResponse) (ret graphql.Marshaler) {
@@ -2161,20 +2165,6 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Query")
-		case "searchUserProfile":
-			field := field
-			out.Concurrently(i, func() (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Query_searchUserProfile(ctx, field)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
-				return res
-			})
 		case "listObjects":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
@@ -2184,6 +2174,20 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_listObjects(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "searchUserProfile":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_searchUserProfile(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -2501,13 +2505,13 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
-func (ec *executionContext) unmarshalNID2int(ctx context.Context, v interface{}) (int, error) {
-	res, err := graphql.UnmarshalIntID(v)
+func (ec *executionContext) unmarshalNID2uint(ctx context.Context, v interface{}) (uint, error) {
+	res, err := UnmarshalUint(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNID2int(ctx context.Context, sel ast.SelectionSet, v int) graphql.Marshaler {
-	res := graphql.MarshalIntID(v)
+func (ec *executionContext) marshalNID2uint(ctx context.Context, sel ast.SelectionSet, v uint) graphql.Marshaler {
+	res := MarshalUint(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -2865,21 +2869,6 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	return graphql.MarshalBoolean(*v)
 }
 
-func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v interface{}) (*int, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := graphql.UnmarshalInt(v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.SelectionSet, v *int) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return graphql.MarshalInt(*v)
-}
-
 func (ec *executionContext) marshalOObjectResponse2ᚖgithubᚗcomᚋcsumissuᚋSkyDiskᚋroutersᚋdtoᚐObjectResponse(ctx context.Context, sel ast.SelectionSet, v *dto.ObjectResponse) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
@@ -2909,6 +2898,21 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 		return graphql.Null
 	}
 	return graphql.MarshalString(*v)
+}
+
+func (ec *executionContext) unmarshalOUint2ᚖuint(ctx context.Context, v interface{}) (*uint, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := UnmarshalUint(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOUint2ᚖuint(ctx context.Context, sel ast.SelectionSet, v *uint) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return MarshalUint(*v)
 }
 
 func (ec *executionContext) marshalO__EnumValue2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐEnumValueᚄ(ctx context.Context, sel ast.SelectionSet, v []introspection.EnumValue) graphql.Marshaler {

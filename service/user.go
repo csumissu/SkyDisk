@@ -16,7 +16,7 @@ func (service *UserService) SearchUserProfile(ctx context.Context) (*dto.UserPro
 		return nil, err
 	} else {
 		return &dto.UserProfileResponse{
-			ID:       int(user.ID),
+			ID:       user.ID,
 			Username: user.Username,
 			Nickname: user.Nickname,
 		}, nil

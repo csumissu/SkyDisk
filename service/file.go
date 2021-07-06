@@ -72,7 +72,7 @@ func (service *FileService) ListObjects(ctx context.Context, virtualPath string)
 	objects := make([]*dto.ObjectResponse, 0, len(childFolders)+len(childFiles))
 	for _, childFolder := range childFolders {
 		objects = append(objects, &dto.ObjectResponse{
-			ID:        int(childFolder.ID),
+			ID:        childFolder.ID,
 			Name:      childFolder.Name,
 			Path:      childFolder.FullPath,
 			Type:      DIR,
@@ -83,7 +83,7 @@ func (service *FileService) ListObjects(ctx context.Context, virtualPath string)
 	}
 	for _, childFile := range childFiles {
 		objects = append(objects, &dto.ObjectResponse{
-			ID:        int(childFile.ID),
+			ID:        childFile.ID,
 			Name:      childFile.Name,
 			Path:      path.Join(folder.FullPath, childFile.Name),
 			Type:      FILE,

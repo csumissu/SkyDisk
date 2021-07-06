@@ -7,18 +7,18 @@ import (
 )
 
 type ObjectResponse struct {
-	ID        int       `json:"id"`
+	ID        uint      `json:"id"`
 	Name      string    `json:"name"`
 	Path      string    `json:"path"`
 	Type      string    `json:"type"`
-	Size      *int      `json:"size"`
+	Size      *uint     `json:"size"`
 	MimeType  *string   `json:"mimeType"`
 	UpdatedAt time.Time `json:"updatedAt"`
 	CreatedAt time.Time `json:"createdAt"`
 }
 
 type UserProfileResponse struct {
-	ID       int    `json:"id"`
+	ID       uint   `json:"id"`
 	Username string `json:"username"`
 	Nickname string `json:"nickname"`
 }

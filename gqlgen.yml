@@ -45,13 +45,18 @@ autobind:
 models:
   ID:
     model:
+      - github.com/csumissu/SkyDisk/routers/graph.Uint
       - github.com/99designs/gqlgen/graphql.IntID
       - github.com/99designs/gqlgen/graphql.ID
-      - github.com/99designs/gqlgen/graphql.Int
-      - github.com/99designs/gqlgen/graphql.Int64
-      - github.com/99designs/gqlgen/graphql.Int32
+
   Int:
     model:
       - github.com/99designs/gqlgen/graphql.Int
       - github.com/99designs/gqlgen/graphql.Int64
       - github.com/99designs/gqlgen/graphql.Int32
+
+  Uint:
+    model:
+      - github.com/csumissu/SkyDisk/routers/graph.Uint
+      - github.com/csumissu/SkyDisk/routers/graph.Uint64
+      - github.com/csumissu/SkyDisk/routers/graph.Uint32
