@@ -14,11 +14,11 @@ type Handler struct {
 var rootDir = getRootDir()
 
 func (handler Handler) Put(ctx context.Context, file io.Reader, objectKey string, size uint64) error {
-	savePath := filepath.Join(rootDir, objectKey)
-	util.Logger.Debug("uploading file to %s, size: %d", savePath, size)
+	fullPath := filepath.Join(rootDir, objectKey)
+	util.Logger.Debug("uploading file to %s, size: %d", fullPath, size)
 
-	basePath := filepath.Dir(savePath)
-	if _, err := os.Stat(savePath); os.IsNotExist(err) {
+	basePath := filepath.Dir(fullPath)
+	if _, err := os.Stat(fullPath); os.IsNotExist(err) {
 		err := os.MkdirAll(basePath, 0744)
 		if err != nil {
 			util.Logger.Warn("directory could not be created, basePath: %s", basePath, err)
@@ -26,14 +26,24 @@ func (handler Handler) Put(ctx context.Context, file io.Reader, objectKey string
 		}
 	}
 
-	target, err := os.Create(savePath)
+	target, err := os.Create(fullPath)
 	if err != nil {
-		util.Logger.Warn("file could not be created, objectKey: %s", savePath, err)
+		util.Logger.Warn("file could not be created, fullPath: %s", fullPath, err)
 		return err
 	}
 
 	_, err = io.Copy(target, file)
 	return err
+}
+
+func (handler Handler) Get(ctx context.Context, objectKey string) (io.ReadSeekCloser, error) {
+	fullPath := filepath.Join(rootDir, objectKey)
+	if file, err := os.Open(fullPath); err != nil {
+		util.Logger.Warn("file could not be opened, fullPath: %s", fullPath, err)
+		return nil, err
+	} else {
+		return file, nil
+	}
 }
 
 func getRootDir() string {

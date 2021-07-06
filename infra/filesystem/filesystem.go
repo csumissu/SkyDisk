@@ -47,6 +47,12 @@ func (fs *FileSystem) Upload(ctx context.Context, info FileInfo) error {
 	return fs.Trigger(ctx, HookAfterUpload)
 }
 
+func (fs *FileSystem) Download(ctx context.Context, info FileInfo) (io.ReadSeekCloser, error) {
+	objectKey := fs.generateObjectKey(info)
+
+	return fs.handler.Get(ctx, objectKey)
+}
+
 func (fs *FileSystem) generateObjectKey(info FileInfo) string {
 	return path.Join(fmt.Sprintf("uploads/%d/%s", fs.User.ID, info.VirtualPath), info.Name)
 }
