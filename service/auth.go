@@ -40,7 +40,7 @@ func (service *AuthService) Login(input dto.LoginRequest) dto.Response {
 		AccessToken: dto.AccessTokenResponse{
 			Type:     util.TokenType,
 			Token:    token,
-			ExpireAt: claims.ExpiresAt * 1000,
+			ExpireAt: time.Unix(claims.ExpiresAt, 0),
 		},
 	}
 	return dto.Success(response)

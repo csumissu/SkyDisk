@@ -2,6 +2,8 @@
 
 package dto
 
+import "time"
+
 type LoginRequest struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
@@ -14,7 +16,7 @@ type LoginResponse struct {
 }
 
 type AccessTokenResponse struct {
-	Type     string `json:"type"`
-	Token    string `json:"token"`
-	ExpireAt int64  `json:"expireAt"`
+	Type     string    `json:"type"`
+	Token    string    `json:"token"`
+	ExpireAt time.Time `json:"expireAt"`
 }

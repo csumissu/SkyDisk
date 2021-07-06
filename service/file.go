@@ -15,7 +15,12 @@ import (
 type FileService struct {
 }
 
-func (service *FileService) SingleUpload(ctx context.Context, path string, upload graphql.Upload) (bool, error) {
+const (
+	DIR  string = "dir"
+	FILE string = "file"
+)
+
+func (service *FileService) SingleUpload(ctx context.Context, virtualPath string, upload graphql.Upload) (bool, error) {
 	user, err := GetCurrentUser(ctx)
 	if err != nil {
 		return false, err
@@ -32,7 +37,7 @@ func (service *FileService) SingleUpload(ctx context.Context, path string, uploa
 		Name:        upload.Filename,
 		Size:        uint64(upload.Size),
 		MIMEType:    upload.ContentType,
-		VirtualPath: path,
+		VirtualPath: path.Clean(virtualPath),
 	}
 
 	fs.Use(filesystem.HookAfterUpload, HookGenericAfterUpload)
@@ -44,8 +49,51 @@ func (service *FileService) SingleUpload(ctx context.Context, path string, uploa
 	return true, nil
 }
 
-func (service *FileService) ListObjects(ctx context.Context, path string) ([]*dto.ObjectResponse, error) {
-	return make([]*dto.ObjectResponse, 0), nil
+func (service *FileService) ListObjects(ctx context.Context, virtualPath string) ([]*dto.ObjectResponse, error) {
+	virtualPath = path.Clean(virtualPath)
+	userID := util.MustGetCurrentUserID(ctx)
+
+	folder, err := models.GetFolderByFullPath(userID, virtualPath)
+	if err == gorm.ErrRecordNotFound {
+		return make([]*dto.ObjectResponse, 0), nil
+	} else if err != nil {
+		return nil, err
+	}
+
+	childFolders, err := folder.GetChildFolders()
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return nil, err
+	}
+	childFiles, err := folder.GetChildFiles()
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return nil, err
+	}
+
+	objects := make([]*dto.ObjectResponse, 0, len(childFolders)+len(childFiles))
+	for _, childFolder := range childFolders {
+		objects = append(objects, &dto.ObjectResponse{
+			ID:        int(childFolder.ID),
+			Name:      childFolder.Name,
+			Path:      childFolder.FullPath,
+			Type:      DIR,
+			MimeType:  nil,
+			UpdatedAt: childFolder.UpdatedAt,
+			CreatedAt: childFolder.CreatedAt,
+		})
+	}
+	for _, childFile := range childFiles {
+		objects = append(objects, &dto.ObjectResponse{
+			ID:        int(childFile.ID),
+			Name:      childFile.Name,
+			Path:      path.Join(folder.FullPath, childFile.Name),
+			Type:      FILE,
+			MimeType:  &childFile.MIMEType,
+			UpdatedAt: childFile.UpdatedAt,
+			CreatedAt: childFile.CreatedAt,
+		})
+	}
+
+	return objects, nil
 }
 
 func HookGenericAfterUpload(ctx context.Context, fs *filesystem.FileSystem) error {

@@ -2,15 +2,19 @@
 
 package dto
 
+import (
+	"time"
+)
+
 type ObjectResponse struct {
-	ID        int     `json:"id"`
-	Name      string  `json:"name"`
-	Path      string  `json:"path"`
-	Type      string  `json:"type"`
-	Size      *int    `json:"size"`
-	MimeType  *string `json:"mimeType"`
-	UpdatedAt int     `json:"updatedAt"`
-	CreatedAt int     `json:"createdAt"`
+	ID        int       `json:"id"`
+	Name      string    `json:"name"`
+	Path      string    `json:"path"`
+	Type      string    `json:"type"`
+	Size      *int      `json:"size"`
+	MimeType  *string   `json:"mimeType"`
+	UpdatedAt time.Time `json:"updatedAt"`
+	CreatedAt time.Time `json:"createdAt"`
 }
 
 type UserProfileResponse struct {

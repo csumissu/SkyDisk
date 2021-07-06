@@ -35,6 +35,18 @@ func (folder *Folder) Create() error {
 	return db.Create(folder).Error
 }
 
+func (folder *Folder) GetChildFolders() ([]Folder, error) {
+	var folders []Folder
+	result := db.Where("parent_id = ?", folder.ID).Find(&folders)
+	return folders, result.Error
+}
+
+func (folder *Folder) GetChildFiles() ([]File, error) {
+	var files []File
+	result := db.Where("folder_id = ?", folder.ID).Find(&files)
+	return files, result.Error
+}
+
 func CreateRootFolder(userID uint) (*Folder, error) {
 	rootFolder := &Folder{
 		Name:     "/",
