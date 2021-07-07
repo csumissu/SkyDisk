@@ -2,12 +2,17 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/csumissu/SkyDisk/infra/filesystem"
 	"github.com/csumissu/SkyDisk/models"
 	"github.com/csumissu/SkyDisk/routers/dto"
 	"github.com/csumissu/SkyDisk/util"
+	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
+	"io"
+	"net/http"
+	"net/url"
 	"path"
 	"strings"
 )
@@ -32,7 +37,7 @@ func (service *FileService) SingleUpload(ctx context.Context, virtualPath string
 	}
 	defer fs.Recycle()
 
-	fileInfo := filesystem.FileInfo{
+	fileInfo := filesystem.UploadFileInfo{
 		File:        upload.File,
 		Name:        upload.Filename,
 		Size:        uint64(upload.Size),
@@ -96,8 +101,51 @@ func (service *FileService) ListObjects(ctx context.Context, virtualPath string)
 	return objects, nil
 }
 
+func (service *FileService) Download(c *gin.Context, objectId uint) dto.Response {
+	ctx := c.Request.Context()
+	user, err := GetCurrentUser(ctx)
+	if err != nil {
+		return dto.Failure(http.StatusUnauthorized, err.Error())
+	}
+
+	fs, err := filesystem.NewFileSystem(user)
+	if err != nil {
+		return dto.Failure(http.StatusInternalServerError, err.Error())
+	}
+	defer fs.Recycle()
+
+	file, err := models.GetFileByID(user.ID, objectId)
+	if err != nil && err == gorm.ErrRecordNotFound {
+		return dto.Failure(http.StatusNotFound, err.Error())
+	} else if err != nil {
+		return dto.Failure(http.StatusInternalServerError, err.Error())
+	}
+
+	folder, err := models.GetFolderByID(user.ID, file.FolderID)
+	if err != nil {
+		return dto.Failure(http.StatusInternalServerError, err.Error())
+	}
+
+	fileInfo := filesystem.DownloadFileInfo{
+		Name:        &file.Name,
+		VirtualPath: folder.FullPath,
+	}
+	object, err := fs.Download(ctx, fileInfo)
+	if err != nil {
+		return dto.Failure(http.StatusInternalServerError, err.Error())
+	}
+	defer func(object io.ReadSeekCloser) {
+		_ = object.Close()
+	}(object)
+
+	c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", url.PathEscape(file.Name)))
+	http.ServeContent(c.Writer, c.Request, file.Name, file.UpdatedAt, object)
+
+	return dto.EmptyResponse()
+}
+
 func HookGenericAfterUpload(ctx context.Context, fs *filesystem.FileSystem) error {
-	info := ctx.Value(filesystem.FileInfoCtx).(filesystem.FileInfo)
+	info := ctx.Value(filesystem.UploadFileInfoCtx).(filesystem.UploadFileInfo)
 	util.Logger.Debug("genericAfterUpload, fileInfo: %v", info)
 
 	folder, err := createDirectory(fs.User.ID, info.VirtualPath)
@@ -108,7 +156,7 @@ func HookGenericAfterUpload(ctx context.Context, fs *filesystem.FileSystem) erro
 	return createOrUpdateFile(fs.User.ID, info, folder)
 }
 
-func createOrUpdateFile(userID uint, info filesystem.FileInfo, folder *models.Folder) error {
+func createOrUpdateFile(userID uint, info filesystem.UploadFileInfo, folder *models.Folder) error {
 	file, err := models.GetFileByNameAndFolderID(userID, info.Name, folder.ID)
 	if err == nil {
 		file.MIMEType = info.MIMEType

@@ -9,6 +9,7 @@ require (
 	github.com/gin-gonic/gin v1.7.2
 	github.com/go-redis/redis/v8 v8.11.0
 	github.com/golang-jwt/jwt v3.2.1+incompatible
+	github.com/google/go-cmp v0.5.6
 	github.com/google/uuid v1.2.0
 	github.com/smartystreets/goconvey v1.6.4 // indirect
 	github.com/vektah/gqlparser/v2 v2.1.0

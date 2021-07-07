@@ -71,3 +71,15 @@ func (file *File) Create() error {
 func (file *File) Update() error {
 	return db.Save(file).Error
 }
+
+func GetFileByID(userID uint, fileID uint) (*File, error) {
+	file := &File{}
+	result := db.Where("user_id = ?", userID).First(file, fileID)
+	return file, result.Error
+}
+
+func GetFolderByID(userID uint, folderID uint) (*Folder, error) {
+	folder := &Folder{}
+	result := db.Where("user_id = ?", userID).First(folder, folderID)
+	return folder, result.Error
+}

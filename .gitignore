@@ -3,3 +3,4 @@
 workspace.code-workspace
 vendor
 uploads
+.DS_Store
