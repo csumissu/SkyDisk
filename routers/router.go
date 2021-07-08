@@ -16,7 +16,7 @@ func InitRouters() *gin.Engine {
 		api.POST("/login", controllers.Login)
 		api.POST("/logout", controllers.Logout)
 		api.POST("/graphql", middleware.AuthRequired(), controllers.GraphqlHandler())
-		api.GET("/download/:objectId", middleware.AuthRequired(), controllers.Download)
+		api.GET("/download/:objectID", middleware.AuthRequired(), controllers.DownloadObject)
 	}
 
 	return r

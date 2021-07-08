@@ -8,10 +8,10 @@ import (
 	"strconv"
 )
 
-func Download(c *gin.Context) {
-	objectId, err := strconv.ParseUint(c.Param("objectId"), 10, 32)
+func DownloadObject(c *gin.Context) {
+	objectID, err := strconv.ParseUint(c.Param("objectID"), 10, 32)
 	if err == nil {
-		response := r.FileService.Download(c, uint(objectId))
+		response := r.FileService.Download(c, uint(objectID))
 		if !cmp.Equal(response, dto.EmptyResponse()) {
 			c.JSON(response.HttpStatus, response)
 		}

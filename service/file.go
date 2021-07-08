@@ -101,7 +101,7 @@ func (service *FileService) ListObjects(ctx context.Context, virtualPath string)
 	return objects, nil
 }
 
-func (service *FileService) Download(c *gin.Context, objectId uint) dto.Response {
+func (service *FileService) Download(c *gin.Context, objectID uint) dto.Response {
 	ctx := c.Request.Context()
 	user, err := GetCurrentUser(ctx)
 	if err != nil {
@@ -114,7 +114,7 @@ func (service *FileService) Download(c *gin.Context, objectId uint) dto.Response
 	}
 	defer fs.Recycle()
 
-	file, err := models.GetFileByID(user.ID, objectId)
+	file, err := models.GetFileByID(user.ID, objectID)
 	if err != nil && err == gorm.ErrRecordNotFound {
 		return dto.Failure(http.StatusNotFound, err.Error())
 	} else if err != nil {
