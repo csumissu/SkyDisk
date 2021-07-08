@@ -15,7 +15,7 @@ var rootDir = getRootDir()
 
 func (handler Handler) Put(ctx context.Context, file io.Reader, objectKey string, size uint64) error {
 	fullPath := filepath.Join(rootDir, objectKey)
-	util.Logger.Debug("uploading file to %s, size: %d", fullPath, size)
+	util.Logger.Debug("uploading file, fullPath: %s, size: %d", fullPath, size)
 
 	basePath := filepath.Dir(fullPath)
 	if _, err := os.Stat(fullPath); os.IsNotExist(err) {
@@ -43,6 +43,23 @@ func (handler Handler) Get(ctx context.Context, objectKey string) (io.ReadSeekCl
 		return nil, err
 	} else {
 		return file, nil
+	}
+}
+
+func (handler Handler) Delete(ctx context.Context, objectKey string) error {
+	fullPath := filepath.Join(rootDir, objectKey)
+	util.Logger.Debug("deleting object, fullPath: %v", fullPath)
+
+	if fileInfo, err := os.Stat(fullPath); err != nil {
+		if os.IsNotExist(err) {
+			return nil
+		} else {
+			return err
+		}
+	} else if fileInfo.IsDir() {
+		return os.RemoveAll(fullPath)
+	} else {
+		return os.Remove(fullPath)
 	}
 }
 

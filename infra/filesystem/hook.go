@@ -6,6 +6,7 @@ import (
 )
 
 const HookAfterUpload = "AfterUpload"
+const HookAfterDelete = "AfterDelete"
 
 type Hook func(ctx context.Context, fs *FileSystem) error
 

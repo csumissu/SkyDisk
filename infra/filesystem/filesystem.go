@@ -17,19 +17,6 @@ type FileSystem struct {
 	mutex   sync.RWMutex
 }
 
-type UploadFileInfo struct {
-	File        io.Reader
-	Name        string
-	Size        uint64
-	MIMEType    string
-	VirtualPath string
-}
-
-type DownloadFileInfo struct {
-	Name        *string
-	VirtualPath string
-}
-
 func NewFileSystem(user *models.User) (*FileSystem, error) {
 	fs := getEmptyFS()
 	fs.User = user
@@ -52,10 +39,20 @@ func (fs *FileSystem) Upload(ctx context.Context, info UploadFileInfo) error {
 	return fs.Trigger(ctx, HookAfterUpload)
 }
 
-func (fs *FileSystem) Download(ctx context.Context, info DownloadFileInfo) (io.ReadSeekCloser, error) {
+func (fs *FileSystem) Download(ctx context.Context, info DownloadObjectInfo) (io.ReadSeekCloser, error) {
+	objectKey := fs.generateObjectKey(info.VirtualPath, info.Name)
+	return fs.handler.Get(ctx, objectKey)
+}
+
+func (fs *FileSystem) Delete(ctx context.Context, info DeleteObjectInfo) error {
+	ctx = context.WithValue(ctx, DeleteObjectInfoCtx, info)
 	objectKey := fs.generateObjectKey(info.VirtualPath, info.Name)
 
-	return fs.handler.Get(ctx, objectKey)
+	if err := fs.handler.Delete(ctx, objectKey); err != nil {
+		return err
+	}
+
+	return fs.Trigger(ctx, HookAfterDelete)
 }
 
 func (fs *FileSystem) generateObjectKey(virtualPath string, name *string) string {

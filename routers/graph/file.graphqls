@@ -4,6 +4,7 @@ extend type Query {
 
 extend type Mutation {
     singleUpload(path: String!, file: Upload!): Boolean!
+    deleteObject(objectID: ID!): Boolean!
 }
 
 type ObjectResponse {

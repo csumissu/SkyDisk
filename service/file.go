@@ -101,7 +101,7 @@ func (service *FileService) ListObjects(ctx context.Context, virtualPath string)
 	return objects, nil
 }
 
-func (service *FileService) Download(c *gin.Context, objectID uint) dto.Response {
+func (service *FileService) DownloadObject(c *gin.Context, objectID uint) dto.Response {
 	ctx := c.Request.Context()
 	user, err := GetCurrentUser(ctx)
 	if err != nil {
@@ -114,22 +114,25 @@ func (service *FileService) Download(c *gin.Context, objectID uint) dto.Response
 	}
 	defer fs.Recycle()
 
-	file, err := models.GetFileByID(user.ID, objectID)
+	file, folder, err := models.GetObjectByID(user.ID, objectID)
 	if err != nil && err == gorm.ErrRecordNotFound {
 		return dto.Failure(http.StatusNotFound, err.Error())
 	} else if err != nil {
 		return dto.Failure(http.StatusInternalServerError, err.Error())
 	}
 
-	folder, err := models.GetFolderByID(user.ID, file.FolderID)
-	if err != nil {
-		return dto.Failure(http.StatusInternalServerError, err.Error())
+	var fileInfo filesystem.DownloadObjectInfo
+	if file != nil {
+		fileInfo = filesystem.DownloadObjectInfo{
+			Name:        &file.Name,
+			VirtualPath: folder.FullPath,
+		}
+	} else {
+		fileInfo = filesystem.DownloadObjectInfo{
+			VirtualPath: folder.FullPath,
+		}
 	}
 
-	fileInfo := filesystem.DownloadFileInfo{
-		Name:        &file.Name,
-		VirtualPath: folder.FullPath,
-	}
 	object, err := fs.Download(ctx, fileInfo)
 	if err != nil {
 		return dto.Failure(http.StatusInternalServerError, err.Error())
@@ -144,9 +147,63 @@ func (service *FileService) Download(c *gin.Context, objectID uint) dto.Response
 	return dto.EmptyResponse()
 }
 
+func (service *FileService) DeleteObject(ctx context.Context, objectID uint) (bool, error) {
+	user, err := GetCurrentUser(ctx)
+	if err != nil {
+		return false, err
+	}
+
+	fs, err := filesystem.NewFileSystem(user)
+	if err != nil {
+		return false, err
+	}
+	defer fs.Recycle()
+
+	file, folder, err := models.GetObjectByID(user.ID, objectID)
+	if err != nil {
+		return false, err
+	}
+
+	var info filesystem.DeleteObjectInfo
+	if file != nil {
+		info = filesystem.DeleteObjectInfo{
+			ObjectID:    file.ID,
+			Name:        &file.Name,
+			VirtualPath: folder.FullPath,
+		}
+	} else {
+		info = filesystem.DeleteObjectInfo{
+			ObjectID:    folder.ID,
+			VirtualPath: folder.FullPath,
+		}
+	}
+
+	fs.Use(filesystem.HookAfterDelete, HookGenericAfterDelete)
+	err = fs.Delete(ctx, info)
+	return err == nil, err
+}
+
+func HookGenericAfterDelete(ctx context.Context, fs *filesystem.FileSystem) error {
+	info := ctx.Value(filesystem.DeleteObjectInfoCtx).(filesystem.DeleteObjectInfo)
+	util.Logger.Debug("hook genericAfterDelete, objectInfo: %v", info)
+
+	if info.Name != nil {
+		return models.DeleteFile(fs.User.ID, info.ObjectID)
+	} else {
+		folder, err := models.GetFolderByID(fs.User.ID, info.ObjectID)
+		if err == nil {
+			return deleteFolderContentRecursively(folder)
+		} else if err == gorm.ErrRecordNotFound {
+			return nil
+		} else {
+			return err
+		}
+	}
+}
+
 func HookGenericAfterUpload(ctx context.Context, fs *filesystem.FileSystem) error {
 	info := ctx.Value(filesystem.UploadFileInfoCtx).(filesystem.UploadFileInfo)
-	util.Logger.Debug("genericAfterUpload, fileInfo: %v", info)
+	util.Logger.Debug("hook genericAfterUpload, fileInfo: %v", info)
 
 	folder, err := createDirectory(fs.User.ID, info.VirtualPath)
 	if err != nil {
@@ -154,6 +211,25 @@ func HookGenericAfterUpload(ctx context.Context, fs *filesystem.FileSystem) erro
 	}
 
 	return createOrUpdateFile(fs.User.ID, info, folder)
+}
+
+func deleteFolderContentRecursively(parentFolder *models.Folder) error {
+	folders, err := parentFolder.GetChildFolders()
+	if err == nil {
+		for _, folder := range folders {
+			if err := deleteFolderContentRecursively(&folder); err != nil {
+				return err
+			}
+		}
+	} else if err != gorm.ErrRecordNotFound {
+		return err
+	}
+
+	if err := models.DeleteChildFiles(parentFolder.UserID, parentFolder.ID); err != nil {
+		return err
+	}
+
+	return parentFolder.Delete()
 }
 
 func createOrUpdateFile(userID uint, info filesystem.UploadFileInfo, folder *models.Folder) error {

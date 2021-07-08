@@ -35,6 +35,10 @@ func (folder *Folder) Create() error {
 	return db.Create(folder).Error
 }
 
+func (folder *Folder) Delete() error {
+	return db.Delete(folder).Error
+}
+
 func (folder *Folder) GetChildFolders() ([]Folder, error) {
 	var folders []Folder
 	result := db.Where("parent_id = ?", folder.ID).Find(&folders)
@@ -82,4 +86,42 @@ func GetFolderByID(userID uint, folderID uint) (*Folder, error) {
 	folder := &Folder{}
 	result := db.Where("user_id = ?", userID).First(folder, folderID)
 	return folder, result.Error
+}
+
+func GetObjectByID(userID uint, objectID uint) (*File, *Folder, error) {
+	if file, err := GetFileByID(userID, objectID); err == nil {
+		if folder, err := GetFolderByID(userID, file.FolderID); err == nil {
+			return file, folder, nil
+		} else {
+			return nil, nil, err
+		}
+	} else if err != gorm.ErrRecordNotFound {
+		return nil, nil, err
+	}
+
+	if folder, err := GetFolderByID(userID, objectID); err == nil {
+		return nil, folder, nil
+	} else if err != gorm.ErrRecordNotFound {
+		return nil, nil, err
+	}
+
+	return nil, nil, gorm.ErrRecordNotFound
+}
+
+func DeleteChildFiles(userID uint, folderID uint) error {
+	err := db.Where("user_id = ? and folder_id = ?", userID, folderID).Delete(&File{}).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return err
+	} else {
+		return nil
+	}
+}
+
+func DeleteFile(userID uint, fileID uint) error {
+	err := db.Where("user_id = ?", userID).Delete(&File{}, fileID).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return err
+	} else {
+		return nil
+	}
 }

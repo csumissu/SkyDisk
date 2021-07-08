@@ -11,7 +11,7 @@ import (
 func DownloadObject(c *gin.Context) {
 	objectID, err := strconv.ParseUint(c.Param("objectID"), 10, 32)
 	if err == nil {
-		response := r.FileService.Download(c, uint(objectID))
+		response := r.FileService.DownloadObject(c, uint(objectID))
 		if !cmp.Equal(response, dto.EmptyResponse()) {
 			c.JSON(response.HttpStatus, response)
 		}

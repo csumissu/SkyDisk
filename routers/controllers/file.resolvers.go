@@ -14,6 +14,10 @@ func (r *mutationResolver) SingleUpload(ctx context.Context, path string, file g
 	return r.FileService.SingleUpload(ctx, path, file)
 }
 
+func (r *mutationResolver) DeleteObject(ctx context.Context, objectID uint) (bool, error) {
+	return r.FileService.DeleteObject(ctx, objectID)
+}
+
 func (r *queryResolver) ListObjects(ctx context.Context, path string) ([]*dto.ObjectResponse, error) {
 	return r.FileService.ListObjects(ctx, path)
 }
