@@ -14,13 +14,14 @@ const (
 
 type Object struct {
 	gorm.Model
-	Type     ObjectType `gorm:"not null;index:idx_type;index:idx_only_one,unique"`
-	Name     string     `gorm:"not null;index:idx_only_one,unique"`
-	UserID   uint       `gorm:"not null;index:idx_user_id;index:idx_only_one,unique"`
-	ParentID *uint      `gorm:"index:idx_parent_id;index:idx_only_one,unique"`
-	FullPath string     `gorm:"not null;index:idx_full_path"`
-	Size     *uint64
-	MIMEType *string
+	DeletedAt gorm.DeletedAt `gorm:"index:idx_deleted_at;index:idx_only_one,unique"`
+	Type      ObjectType     `gorm:"not null;index:idx_type;index:idx_only_one,unique"`
+	Name      string         `gorm:"not null;index:idx_only_one,unique,priority:3"`
+	UserID    uint           `gorm:"not null;index:idx_user_id;index:idx_only_one,unique"`
+	ParentID  *uint          `gorm:"index:idx_parent_id;index:idx_only_one,unique"`
+	FullPath  string         `gorm:"not null;index:idx_full_path"`
+	Size      *uint64
+	MIMEType  *string
 }
 
 func (object Object) IsDir() bool {

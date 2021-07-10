@@ -6,10 +6,11 @@ import (
 
 type User struct {
 	gorm.Model
-	Username string `gorm:"not null;index:idx_user_name,unique"`
-	Password string `gorm:"not null"`
-	Nickname string `gorm:"not null"`
-	Status   Status `gorm:"not null"`
+	DeletedAt gorm.DeletedAt `gorm:"index:idx_deleted_at;index:idx_only_one,unique"`
+	Username  string         `gorm:"not null;index:idx_user_name;index:idx_only_one,unique"`
+	Password  string         `gorm:"not null"`
+	Nickname  string         `gorm:"not null"`
+	Status    Status         `gorm:"not null;index:idx_status"`
 }
 
 type Status int
