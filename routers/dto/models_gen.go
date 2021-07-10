@@ -11,7 +11,7 @@ type ObjectResponse struct {
 	Name      string    `json:"name"`
 	Path      string    `json:"path"`
 	Type      string    `json:"type"`
-	Size      *uint     `json:"size"`
+	Size      *uint64   `json:"size"`
 	MimeType  *string   `json:"mimeType"`
 	UpdatedAt time.Time `json:"updatedAt"`
 	CreatedAt time.Time `json:"createdAt"`

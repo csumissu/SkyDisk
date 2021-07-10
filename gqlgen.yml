@@ -60,3 +60,7 @@ models:
       - github.com/csumissu/SkyDisk/routers/graph.Uint
       - github.com/csumissu/SkyDisk/routers/graph.Uint64
       - github.com/csumissu/SkyDisk/routers/graph.Uint32
+
+  Uint64:
+    model:
+      - github.com/csumissu/SkyDisk/routers/graph.Uint64

@@ -78,7 +78,7 @@ func (c Claims) Valid() error {
 	return vErr
 }
 
-func (c *Claims) GetUserID() uint {
+func (c Claims) GetUserID() uint {
 	subject, err := strconv.ParseUint(c.Subject, 10, 32)
 	if err != nil {
 		Logger.Panic("user id in jwt token is incorrect, subject: %s", c.Subject)

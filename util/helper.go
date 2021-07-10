@@ -1,6 +1,9 @@
 package util
 
-import "reflect"
+import (
+	"io"
+	"reflect"
+)
 
 func GetOrDefault(m map[string]interface{}, key string, defaultValue interface{}) interface{} {
 	if value, ok := m[key]; ok {
@@ -16,4 +19,8 @@ func GetTypeName(i interface{}) string {
 		t = t.Elem()
 	}
 	return t.Name()
+}
+
+func CloseQuietly(closer io.Closer) {
+	_ = closer.Close()
 }

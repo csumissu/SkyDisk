@@ -1,127 +1,140 @@
 package models
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+	"path"
+)
 
-type File struct {
+type ObjectType uint
+
+const (
+	FILE ObjectType = 0
+	DIR  ObjectType = 1
+)
+
+type Object struct {
 	gorm.Model
-	Name     string `gorm:"not null;index:idx_only_one,unique"`
-	UserID   uint   `gorm:"not null;index:idx_user_id;index:idx_only_one,unique"`
-	Size     uint64 `gorm:"not null"`
-	MIMEType string `gorm:"not null"`
-	FolderID uint   `gorm:"not null;index:idx_folder_id;index:idx_only_one,unique"`
+	Type     ObjectType `gorm:"not null;index:idx_type;index:idx_only_one,unique"`
+	Name     string     `gorm:"not null;index:idx_only_one,unique"`
+	UserID   uint       `gorm:"not null;index:idx_user_id;index:idx_only_one,unique"`
+	ParentID *uint      `gorm:"index:idx_parent_id;index:idx_only_one,unique"`
+	FullPath string     `gorm:"not null;index:idx_full_path"`
+	Size     *uint64
+	MIMEType *string
 }
 
-type Folder struct {
-	gorm.Model
-	Name     string `gorm:"not null;index:idx_only_one,unique"`
-	FullPath string `gorm:"not null;index:idx_full_path"`
-	ParentID *uint  `gorm:"index:parent_id;index:idx_only_one,unique"`
-	UserID   uint   `gorm:"not null;index:idx_user_id"`
+func (object Object) IsDir() bool {
+	return object.Type == DIR
 }
 
-func GetFolderByFullPath(userID uint, fullPath string) (*Folder, error) {
-	folder := &Folder{}
-	result := db.Where("user_id = ? and full_path = ?", userID, fullPath).First(folder)
-	return folder, result.Error
+func (object Object) GetType() string {
+	if object.IsDir() {
+		return "dir"
+	} else {
+		return "file"
+	}
 }
 
-func GetRootFolder(userID uint) (*Folder, error) {
-	folder := &Folder{}
-	result := db.Where("user_id = ? and parent_id is null", userID).First(folder)
-	return folder, result.Error
+func (user User) GetRootDir() (*Object, error) {
+	dir := &Object{}
+	result := db.Where("user_id = ? and parent_id is null and type = ?", user.ID, DIR).First(dir)
+	return dir, result.Error
 }
 
-func (folder *Folder) Create() error {
-	return db.Create(folder).Error
-}
-
-func (folder *Folder) Delete() error {
-	return db.Delete(folder).Error
-}
-
-func (folder *Folder) GetChildFolders() ([]Folder, error) {
-	var folders []Folder
-	result := db.Where("parent_id = ?", folder.ID).Find(&folders)
-	return folders, result.Error
-}
-
-func (folder *Folder) GetChildFiles() ([]File, error) {
-	var files []File
-	result := db.Where("folder_id = ?", folder.ID).Find(&files)
-	return files, result.Error
-}
-
-func CreateRootFolder(userID uint) (*Folder, error) {
-	rootFolder := &Folder{
+func (user User) CreateRootDir() (*Object, error) {
+	rootFolder := &Object{
+		Type:     DIR,
 		Name:     "/",
-		FullPath: "/",
+		UserID:   user.ID,
 		ParentID: nil,
-		UserID:   userID,
+		FullPath: "/",
 	}
 	err := rootFolder.Create()
 	return rootFolder, err
 }
 
-func GetFileByNameAndFolderID(userID uint, name string, folderID uint) (*File, error) {
-	file := &File{}
-	result := db.Where("user_id = ? and name = ? and folder_id = ?", userID, name, folderID).First(file)
+func (object *Object) Create() error {
+	return db.Create(object).Error
+}
+
+func (object *Object) Update() error {
+	return db.Save(object).Error
+}
+
+func (user User) GetFileByNameAndDirID(name string, dirID uint) (*Object, error) {
+	file := &Object{}
+	result := db.Where("user_id = ? and name = ? and parent_id = ? and type = ?", user.ID, name, dirID, FILE).First(file)
 	return file, result.Error
 }
 
-func (file *File) Create() error {
-	return db.Create(file).Error
+func (user User) NewFile(dir Object, name string, size uint64, MIMEType string) (*Object, error) {
+	file := &Object{
+		Type:     FILE,
+		Name:     name,
+		UserID:   user.ID,
+		ParentID: &dir.ID,
+		FullPath: path.Join(dir.FullPath, name),
+		Size:     &size,
+		MIMEType: &MIMEType,
+	}
+	err := file.Create()
+	return file, err
 }
 
-func (file *File) Update() error {
-	return db.Save(file).Error
+func (user User) GetDirByFullPath(fullPath string) (*Object, error) {
+	dir := &Object{}
+	result := db.Where("user_id = ? and full_path = ? and type = ?", user.ID, fullPath, DIR).First(dir)
+	return dir, result.Error
 }
 
-func GetFileByID(userID uint, fileID uint) (*File, error) {
-	file := &File{}
-	result := db.Where("user_id = ?", userID).First(file, fileID)
-	return file, result.Error
+func (user User) NewFolder(parentDir Object, name string) (*Object, error) {
+	dir := &Object{
+		Type:     DIR,
+		Name:     name,
+		UserID:   user.ID,
+		ParentID: &parentDir.ID,
+		FullPath: path.Join(parentDir.FullPath, name),
+	}
+	err := dir.Create()
+	return dir, err
 }
 
-func GetFolderByID(userID uint, folderID uint) (*Folder, error) {
-	folder := &Folder{}
-	result := db.Where("user_id = ?", userID).First(folder, folderID)
-	return folder, result.Error
+func (object Object) GetChildObjects() ([]Object, error) {
+	var objects []Object
+	result := db.Where("user_id = ? and parent_id = ?", object.UserID, object.ID).
+		Order("type desc").
+		Find(&objects)
+	return objects, result.Error
 }
 
-func GetObjectByID(userID uint, objectID uint) (*File, *Folder, error) {
-	if file, err := GetFileByID(userID, objectID); err == nil {
-		if folder, err := GetFolderByID(userID, file.FolderID); err == nil {
-			return file, folder, nil
-		} else {
-			return nil, nil, err
+func (user User) GetObjectByID(ID uint) (*Object, error) {
+	object := &Object{}
+	result := db.Where("user_id = ?", user.ID).First(object, ID)
+	return object, result.Error
+}
+
+func (user User) DeleteObjectByID(ID uint) error {
+	err := db.Where("user_id = ?", user.ID).Delete(&Object{}, ID).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return err
+	} else {
+		return nil
+	}
+}
+
+func (object *Object) Delete() error {
+	if object.IsDir() {
+		if err := object.DeleteChildObjects(); err != nil && err != gorm.ErrRecordNotFound {
+			return err
 		}
-	} else if err != gorm.ErrRecordNotFound {
-		return nil, nil, err
 	}
-
-	if folder, err := GetFolderByID(userID, objectID); err == nil {
-		return nil, folder, nil
-	} else if err != gorm.ErrRecordNotFound {
-		return nil, nil, err
-	}
-
-	return nil, nil, gorm.ErrRecordNotFound
-}
-
-func DeleteChildFiles(userID uint, folderID uint) error {
-	err := db.Where("user_id = ? and folder_id = ?", userID, folderID).Delete(&File{}).Error
-	if err != nil && err != gorm.ErrRecordNotFound {
+	if err := db.Delete(object).Error; err != nil && err != gorm.ErrRecordNotFound {
 		return err
 	} else {
 		return nil
 	}
 }
 
-func DeleteFile(userID uint, fileID uint) error {
-	err := db.Where("user_id = ?", userID).Delete(&File{}, fileID).Error
-	if err != nil && err != gorm.ErrRecordNotFound {
-		return err
-	} else {
-		return nil
-	}
+func (object Object) DeleteChildObjects() error {
+	return db.Where("user_id = ? and full_path like ?", object.UserID, object.FullPath+"/%").Delete(&Object{}).Error
 }

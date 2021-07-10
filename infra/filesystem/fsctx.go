@@ -1,16 +1,14 @@
 package filesystem
 
-import "io"
-
 type key int
 
 const (
-	UploadFileInfoCtx key = iota
+	UploadObjectInfoCtx key = iota
+	DownloadObjectInfoCtx
 	DeleteObjectInfoCtx
 )
 
-type UploadFileInfo struct {
-	File        io.Reader
+type UploadObjectInfo struct {
 	Name        string
 	Size        uint64
 	MIMEType    string
@@ -18,12 +16,12 @@ type UploadFileInfo struct {
 }
 
 type DownloadObjectInfo struct {
-	Name        *string
+	IsDir       bool
 	VirtualPath string
 }
 
 type DeleteObjectInfo struct {
 	ObjectID    uint
-	Name        *string
+	IsDir       bool
 	VirtualPath string
 }

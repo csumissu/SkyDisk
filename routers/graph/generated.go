@@ -283,6 +283,7 @@ var sources = []*ast.Source{
 	{Name: "routers/graph/basic.graphqls", Input: `scalar Upload
 scalar Time
 scalar Uint
+scalar Uint64
 
 type Query
 
@@ -301,7 +302,7 @@ type ObjectResponse {
     name: String!
     path: String!
     type: String!
-    size: Uint
+    size: Uint64
     mimeType: String
     updatedAt: Time!
     createdAt: Time!
@@ -680,9 +681,9 @@ func (ec *executionContext) _ObjectResponse_size(ctx context.Context, field grap
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*uint)
+	res := resTmp.(*uint64)
 	fc.Result = res
-	return ec.marshalOUint2ᚖuint(ctx, field.Selections, res)
+	return ec.marshalOUint642ᚖuint64(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _ObjectResponse_mimeType(ctx context.Context, field graphql.CollectedField, obj *dto.ObjectResponse) (ret graphql.Marshaler) {
@@ -2977,19 +2978,19 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 	return graphql.MarshalString(*v)
 }
 
-func (ec *executionContext) unmarshalOUint2ᚖuint(ctx context.Context, v interface{}) (*uint, error) {
+func (ec *executionContext) unmarshalOUint642ᚖuint64(ctx context.Context, v interface{}) (*uint64, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := UnmarshalUint(v)
+	res, err := UnmarshalUint64(v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalOUint2ᚖuint(ctx context.Context, sel ast.SelectionSet, v *uint) graphql.Marshaler {
+func (ec *executionContext) marshalOUint642ᚖuint64(ctx context.Context, sel ast.SelectionSet, v *uint64) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return MarshalUint(*v)
+	return MarshalUint64(*v)
 }
 
 func (ec *executionContext) marshalO__EnumValue2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐEnumValueᚄ(ctx context.Context, sel ast.SelectionSet, v []introspection.EnumValue) graphql.Marshaler {

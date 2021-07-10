@@ -14,7 +14,3 @@ func GetCurrentUserID(ctx context.Context) (uint, bool) {
 	userID, ok := ctx.Value(userIDContextKey).(uint)
 	return userID, ok
 }
-
-func MustGetCurrentUserID(ctx context.Context) uint {
-	return ctx.Value(userIDContextKey).(uint)
-}

@@ -1,6 +1,7 @@
 scalar Upload
 scalar Time
 scalar Uint
+scalar Uint64
 
 type Query
 

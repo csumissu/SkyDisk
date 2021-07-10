@@ -12,7 +12,7 @@ type ObjectResponse {
     name: String!
     path: String!
     type: String!
-    size: Uint
+    size: Uint64
     mimeType: String
     updatedAt: Time!
     createdAt: Time!
