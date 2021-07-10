@@ -6,6 +6,11 @@ import (
 	"time"
 )
 
+type ListObjectsRresponse struct {
+	Current  *ObjectResponse   `json:"current"`
+	Children []*ObjectResponse `json:"children"`
+}
+
 type ObjectResponse struct {
 	ID        uint      `json:"id"`
 	Name      string    `json:"name"`

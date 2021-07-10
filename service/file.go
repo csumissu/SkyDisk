@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/csumissu/SkyDisk/infra/filesystem"
+	"github.com/csumissu/SkyDisk/models"
 	"github.com/csumissu/SkyDisk/routers/dto"
 	"github.com/csumissu/SkyDisk/util"
 	"github.com/gin-gonic/gin"
@@ -42,40 +43,30 @@ func (service *FileService) SingleUpload(ctx context.Context, virtualPath string
 	return err == nil, err
 }
 
-func (service *FileService) ListObjects(ctx context.Context, virtualPath string) ([]*dto.ObjectResponse, error) {
+func (service *FileService) ListObjects(ctx context.Context, virtualPath string) (*dto.ListObjectsRresponse, error) {
 	user, err := GetCurrentUser(ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	virtualPath = path.Clean(virtualPath)
-	dir, err := user.GetDirByFullPath(virtualPath)
-	if err == gorm.ErrRecordNotFound {
-		return make([]*dto.ObjectResponse, 0), nil
-	} else if err != nil {
+	currentObject, err := user.GetObjectByFullPath(virtualPath)
+	if err != nil {
 		return nil, err
 	}
 
-	childObjects, err := dir.GetChildObjects()
-	if err != nil && err != gorm.ErrRecordNotFound {
-		return nil, err
+	var childObjects []models.Object
+	if currentObject.IsDir() {
+		childObjects, err = currentObject.GetChildObjects()
+		if err != nil && err != gorm.ErrRecordNotFound {
+			return nil, err
+		}
 	}
 
-	results := make([]*dto.ObjectResponse, 0, len(childObjects))
-	for _, object := range childObjects {
-		results = append(results, &dto.ObjectResponse{
-			ID:        object.ID,
-			Name:      object.Name,
-			Path:      object.FullPath,
-			Type:      object.GetType(),
-			Size:      object.Size,
-			MimeType:  object.MIMEType,
-			UpdatedAt: object.UpdatedAt,
-			CreatedAt: object.CreatedAt,
-		})
-	}
-
-	return results, nil
+	return &dto.ListObjectsRresponse{
+		Current:  objectToObjectResponse(*currentObject),
+		Children: objectsToObjectsResponse(childObjects),
+	}, nil
 }
 
 func (service *FileService) DownloadObject(c *gin.Context, objectID uint) dto.Response {
@@ -138,5 +129,30 @@ func getFileSystem(ctx context.Context) (*filesystem.FileSystem, error) {
 		return filesystem.NewFileSystem(user)
 	} else {
 		return nil, err
+	}
+}
+
+func objectsToObjectsResponse(objects []models.Object) []*dto.ObjectResponse {
+	if len(objects) == 0 {
+		return nil
+	}
+
+	results := make([]*dto.ObjectResponse, 0, len(objects))
+	for _, object := range objects {
+		results = append(results, objectToObjectResponse(object))
+	}
+	return results
+}
+
+func objectToObjectResponse(object models.Object) *dto.ObjectResponse {
+	return &dto.ObjectResponse{
+		ID:        object.ID,
+		Name:      object.Name,
+		Path:      object.FullPath,
+		Type:      object.GetType(),
+		Size:      object.Size,
+		MimeType:  object.MIMEType,
+		UpdatedAt: object.UpdatedAt,
+		CreatedAt: object.CreatedAt,
 	}
 }

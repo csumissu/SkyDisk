@@ -1,10 +1,15 @@
 extend type Query {
-    listObjects(path: String!): [ObjectResponse]!
+    listObjects(path: String!): ListObjectsRresponse!
 }
 
 extend type Mutation {
     singleUpload(path: String!, file: Upload!): Boolean!
     deleteObject(objectID: ID!): Boolean!
+}
+
+type ListObjectsRresponse {
+    current: ObjectResponse!
+    children: [ObjectResponse!]
 }
 
 type ObjectResponse {

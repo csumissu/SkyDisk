@@ -18,6 +18,6 @@ func (r *mutationResolver) DeleteObject(ctx context.Context, objectID uint) (boo
 	return r.FileService.DeleteObject(ctx, objectID)
 }
 
-func (r *queryResolver) ListObjects(ctx context.Context, path string) ([]*dto.ObjectResponse, error) {
+func (r *queryResolver) ListObjects(ctx context.Context, path string) (*dto.ListObjectsRresponse, error) {
 	return r.FileService.ListObjects(ctx, path)
 }

@@ -36,7 +36,7 @@ func HookGenericAfterDelete(ctx context.Context, fs *filesystem.FileSystem) erro
 }
 
 func createOrUpdateFile(user models.User, info filesystem.UploadObjectInfo, dir models.Object) error {
-	file, err := user.GetFileByNameAndDirID(info.Name, dir.ID)
+	file, err := user.GetObjectByNameAndParentID(info.Name, dir.ID, models.FILE)
 	if err == nil {
 		file.MIMEType = &info.MIMEType
 		file.Size = &info.Size
@@ -65,9 +65,9 @@ func createDirsRecursively(user models.User, fullPath string) (*models.Object, e
 		}
 	}
 
-	dir, err := user.GetDirByFullPath(fullPath)
+	currentDir, err := user.GetObjectByFullPath(fullPath, models.DIR)
 	if err == nil {
-		return dir, nil
+		return currentDir, nil
 	} else if err != gorm.ErrRecordNotFound {
 		return nil, err
 	}
@@ -77,5 +77,5 @@ func createDirsRecursively(user models.User, fullPath string) (*models.Object, e
 		return nil, err
 	}
 
-	return user.NewFolder(*parentDir, currentDirName)
+	return user.NewDir(*parentDir, currentDirName)
 }

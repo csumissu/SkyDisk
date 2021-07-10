@@ -62,19 +62,13 @@ func (object *Object) Update() error {
 	return db.Save(object).Error
 }
 
-func (user User) GetFileByNameAndDirID(name string, dirID uint) (*Object, error) {
-	file := &Object{}
-	result := db.Where("user_id = ? and name = ? and parent_id = ? and type = ?", user.ID, name, dirID, FILE).First(file)
-	return file, result.Error
-}
-
-func (user User) NewFile(dir Object, name string, size uint64, MIMEType string) (*Object, error) {
+func (user User) NewFile(parent Object, name string, size uint64, MIMEType string) (*Object, error) {
 	file := &Object{
 		Type:     FILE,
 		Name:     name,
 		UserID:   user.ID,
-		ParentID: &dir.ID,
-		FullPath: path.Join(dir.FullPath, name),
+		ParentID: &parent.ID,
+		FullPath: path.Join(parent.FullPath, name),
 		Size:     &size,
 		MIMEType: &MIMEType,
 	}
@@ -82,19 +76,13 @@ func (user User) NewFile(dir Object, name string, size uint64, MIMEType string) 
 	return file, err
 }
 
-func (user User) GetDirByFullPath(fullPath string) (*Object, error) {
-	dir := &Object{}
-	result := db.Where("user_id = ? and full_path = ? and type = ?", user.ID, fullPath, DIR).First(dir)
-	return dir, result.Error
-}
-
-func (user User) NewFolder(parentDir Object, name string) (*Object, error) {
+func (user User) NewDir(parent Object, name string) (*Object, error) {
 	dir := &Object{
 		Type:     DIR,
 		Name:     name,
 		UserID:   user.ID,
-		ParentID: &parentDir.ID,
-		FullPath: path.Join(parentDir.FullPath, name),
+		ParentID: &parent.ID,
+		FullPath: path.Join(parent.FullPath, name),
 	}
 	err := dir.Create()
 	return dir, err
@@ -138,4 +126,24 @@ func (object *Object) Delete() error {
 
 func (object Object) DeleteChildObjects() error {
 	return db.Where("user_id = ? and full_path like ?", object.UserID, object.FullPath+"/%").Delete(&Object{}).Error
+}
+
+func (user User) GetObjectByNameAndParentID(name string, parentID uint, objectTypes ...ObjectType) (*Object, error) {
+	if len(objectTypes) == 0 {
+		objectTypes = []ObjectType{FILE, DIR}
+	}
+
+	file := &Object{}
+	result := db.Where("user_id = ? and name = ? and parent_id = ? and type in (?)", user.ID, name, parentID, objectTypes).First(file)
+	return file, result.Error
+}
+
+func (user User) GetObjectByFullPath(fullPath string, objectTypes ...ObjectType) (*Object, error) {
+	if len(objectTypes) == 0 {
+		objectTypes = []ObjectType{FILE, DIR}
+	}
+
+	dir := &Object{}
+	result := db.Where("user_id = ? and full_path = ? and type in (?)", user.ID, fullPath, objectTypes).First(dir)
+	return dir, result.Error
 }

@@ -44,6 +44,11 @@ type DirectiveRoot struct {
 }
 
 type ComplexityRoot struct {
+	ListObjectsRresponse struct {
+		Children func(childComplexity int) int
+		Current  func(childComplexity int) int
+	}
+
 	Mutation struct {
 		DeleteObject func(childComplexity int, objectID uint) int
 		SingleUpload func(childComplexity int, path string, file graphql.Upload) int
@@ -77,7 +82,7 @@ type MutationResolver interface {
 	DeleteObject(ctx context.Context, objectID uint) (bool, error)
 }
 type QueryResolver interface {
-	ListObjects(ctx context.Context, path string) ([]*dto.ObjectResponse, error)
+	ListObjects(ctx context.Context, path string) (*dto.ListObjectsRresponse, error)
 	SearchUserProfile(ctx context.Context) (*dto.UserProfileResponse, error)
 }
 
@@ -95,6 +100,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	ec := executionContext{nil, e}
 	_ = ec
 	switch typeName + "." + field {
+
+	case "ListObjectsRresponse.children":
+		if e.complexity.ListObjectsRresponse.Children == nil {
+			break
+		}
+
+		return e.complexity.ListObjectsRresponse.Children(childComplexity), true
+
+	case "ListObjectsRresponse.current":
+		if e.complexity.ListObjectsRresponse.Current == nil {
+			break
+		}
+
+		return e.complexity.ListObjectsRresponse.Current(childComplexity), true
 
 	case "Mutation.deleteObject":
 		if e.complexity.Mutation.DeleteObject == nil {
@@ -289,12 +308,17 @@ type Query
 
 type Mutation`, BuiltIn: false},
 	{Name: "routers/graph/file.graphqls", Input: `extend type Query {
-    listObjects(path: String!): [ObjectResponse]!
+    listObjects(path: String!): ListObjectsRresponse!
 }
 
 extend type Mutation {
     singleUpload(path: String!, file: Upload!): Boolean!
     deleteObject(objectID: ID!): Boolean!
+}
+
+type ListObjectsRresponse {
+    current: ObjectResponse!
+    children: [ObjectResponse!]
 }
 
 type ObjectResponse {
@@ -429,6 +453,73 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 // endregion ************************** directives.gotpl **************************
 
 // region    **************************** field.gotpl *****************************
+
+func (ec *executionContext) _ListObjectsRresponse_current(ctx context.Context, field graphql.CollectedField, obj *dto.ListObjectsRresponse) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "ListObjectsRresponse",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Current, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*dto.ObjectResponse)
+	fc.Result = res
+	return ec.marshalNObjectResponse2ᚖgithubᚗcomᚋcsumissuᚋSkyDiskᚋroutersᚋdtoᚐObjectResponse(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _ListObjectsRresponse_children(ctx context.Context, field graphql.CollectedField, obj *dto.ListObjectsRresponse) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "ListObjectsRresponse",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Children, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*dto.ObjectResponse)
+	fc.Result = res
+	return ec.marshalOObjectResponse2ᚕᚖgithubᚗcomᚋcsumissuᚋSkyDiskᚋroutersᚋdtoᚐObjectResponseᚄ(ctx, field.Selections, res)
+}
 
 func (ec *executionContext) _Mutation_singleUpload(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
@@ -825,9 +916,9 @@ func (ec *executionContext) _Query_listObjects(ctx context.Context, field graphq
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*dto.ObjectResponse)
+	res := resTmp.(*dto.ListObjectsRresponse)
 	fc.Result = res
-	return ec.marshalNObjectResponse2ᚕᚖgithubᚗcomᚋcsumissuᚋSkyDiskᚋroutersᚋdtoᚐObjectResponse(ctx, field.Selections, res)
+	return ec.marshalNListObjectsRresponse2ᚖgithubᚗcomᚋcsumissuᚋSkyDiskᚋroutersᚋdtoᚐListObjectsRresponse(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_searchUserProfile(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -2136,6 +2227,35 @@ func (ec *executionContext) ___Type_ofType(ctx context.Context, field graphql.Co
 
 // region    **************************** object.gotpl ****************************
 
+var listObjectsRresponseImplementors = []string{"ListObjectsRresponse"}
+
+func (ec *executionContext) _ListObjectsRresponse(ctx context.Context, sel ast.SelectionSet, obj *dto.ListObjectsRresponse) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, listObjectsRresponseImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ListObjectsRresponse")
+		case "current":
+			out.Values[i] = ec._ListObjectsRresponse_current(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "children":
+			out.Values[i] = ec._ListObjectsRresponse_children(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var mutationImplementors = []string{"Mutation"}
 
 func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
@@ -2598,41 +2718,28 @@ func (ec *executionContext) marshalNID2uint(ctx context.Context, sel ast.Selecti
 	return res
 }
 
-func (ec *executionContext) marshalNObjectResponse2ᚕᚖgithubᚗcomᚋcsumissuᚋSkyDiskᚋroutersᚋdtoᚐObjectResponse(ctx context.Context, sel ast.SelectionSet, v []*dto.ObjectResponse) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalOObjectResponse2ᚖgithubᚗcomᚋcsumissuᚋSkyDiskᚋroutersᚋdtoᚐObjectResponse(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
+func (ec *executionContext) marshalNListObjectsRresponse2githubᚗcomᚋcsumissuᚋSkyDiskᚋroutersᚋdtoᚐListObjectsRresponse(ctx context.Context, sel ast.SelectionSet, v dto.ListObjectsRresponse) graphql.Marshaler {
+	return ec._ListObjectsRresponse(ctx, sel, &v)
+}
 
+func (ec *executionContext) marshalNListObjectsRresponse2ᚖgithubᚗcomᚋcsumissuᚋSkyDiskᚋroutersᚋdtoᚐListObjectsRresponse(ctx context.Context, sel ast.SelectionSet, v *dto.ListObjectsRresponse) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
 	}
-	wg.Wait()
-	return ret
+	return ec._ListObjectsRresponse(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNObjectResponse2ᚖgithubᚗcomᚋcsumissuᚋSkyDiskᚋroutersᚋdtoᚐObjectResponse(ctx context.Context, sel ast.SelectionSet, v *dto.ObjectResponse) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._ObjectResponse(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {
@@ -2947,11 +3054,44 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	return graphql.MarshalBoolean(*v)
 }
 
-func (ec *executionContext) marshalOObjectResponse2ᚖgithubᚗcomᚋcsumissuᚋSkyDiskᚋroutersᚋdtoᚐObjectResponse(ctx context.Context, sel ast.SelectionSet, v *dto.ObjectResponse) graphql.Marshaler {
+func (ec *executionContext) marshalOObjectResponse2ᚕᚖgithubᚗcomᚋcsumissuᚋSkyDiskᚋroutersᚋdtoᚐObjectResponseᚄ(ctx context.Context, sel ast.SelectionSet, v []*dto.ObjectResponse) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return ec._ObjectResponse(ctx, sel, v)
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNObjectResponse2ᚖgithubᚗcomᚋcsumissuᚋSkyDiskᚋroutersᚋdtoᚐObjectResponse(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+	return ret
 }
 
 func (ec *executionContext) unmarshalOString2string(ctx context.Context, v interface{}) (string, error) {
