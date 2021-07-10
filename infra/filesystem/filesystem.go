@@ -41,14 +41,14 @@ func (fs *FileSystem) Upload(ctx context.Context, file io.Reader, info UploadObj
 func (fs *FileSystem) Download(ctx context.Context, info DownloadObjectInfo) (io.ReadSeekCloser, error) {
 	ctx = context.WithValue(ctx, DownloadObjectInfoCtx, info)
 	objectKey := fs.generateObjectKey(info.VirtualPath)
-	return fs.handler.Get(ctx, objectKey)
+	return fs.handler.Get(ctx, objectKey, info.IsDir)
 }
 
 func (fs *FileSystem) Delete(ctx context.Context, info DeleteObjectInfo) error {
 	ctx = context.WithValue(ctx, DeleteObjectInfoCtx, info)
 	objectKey := fs.generateObjectKey(info.VirtualPath)
 
-	if err := fs.handler.Delete(ctx, objectKey); err != nil {
+	if err := fs.handler.Delete(ctx, objectKey, info.IsDir); err != nil {
 		return err
 	}
 

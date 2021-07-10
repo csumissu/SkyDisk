@@ -16,6 +16,7 @@ type UploadObjectInfo struct {
 }
 
 type DownloadObjectInfo struct {
+	ObjectID    uint
 	IsDir       bool
 	VirtualPath string
 }

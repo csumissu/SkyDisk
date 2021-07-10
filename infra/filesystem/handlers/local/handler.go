@@ -15,20 +15,20 @@ var rootDir = getRootDir()
 
 func (handler Handler) Put(ctx context.Context, file io.Reader, objectKey string, size uint64) error {
 	fullPath := filepath.Join(rootDir, objectKey)
-	util.Logger.Debug("uploading file, fullPath: %s, size: %d", fullPath, size)
+	util.Logger.Debug("uploading file, fullPath: %v, size: %v", fullPath, size)
 
 	basePath := filepath.Dir(fullPath)
 	if _, err := os.Stat(fullPath); os.IsNotExist(err) {
 		err := os.MkdirAll(basePath, 0744)
 		if err != nil {
-			util.Logger.Warn("directory could not be created, basePath: %s", basePath, err)
+			util.Logger.Warn("directory could not be created, basePath: %v", basePath, err)
 			return err
 		}
 	}
 
 	target, err := os.Create(fullPath)
 	if err != nil {
-		util.Logger.Warn("file could not be created, fullPath: %s", fullPath, err)
+		util.Logger.Warn("file could not be created, fullPath: %v", fullPath, err)
 		return err
 	}
 
@@ -36,30 +36,32 @@ func (handler Handler) Put(ctx context.Context, file io.Reader, objectKey string
 	return err
 }
 
-func (handler Handler) Get(ctx context.Context, objectKey string) (io.ReadSeekCloser, error) {
+func (handler Handler) Get(ctx context.Context, objectKey string, isDir bool) (io.ReadSeekCloser, error) {
 	fullPath := filepath.Join(rootDir, objectKey)
+	util.Logger.Debug("downloading object, fullPath: %v", fullPath)
+
 	if file, err := os.Open(fullPath); err != nil {
-		util.Logger.Warn("file could not be opened, fullPath: %s", fullPath, err)
 		return nil, err
 	} else {
 		return file, nil
 	}
 }
 
-func (handler Handler) Delete(ctx context.Context, objectKey string) error {
+func (handler Handler) Delete(ctx context.Context, objectKey string, isDir bool) error {
 	fullPath := filepath.Join(rootDir, objectKey)
 	util.Logger.Debug("deleting object, fullPath: %v", fullPath)
 
-	if fileInfo, err := os.Stat(fullPath); err != nil {
-		if os.IsNotExist(err) {
-			return nil
-		} else {
-			return err
-		}
-	} else if fileInfo.IsDir() {
-		return os.RemoveAll(fullPath)
+	var err error
+	if isDir {
+		err = os.RemoveAll(fullPath)
 	} else {
-		return os.Remove(fullPath)
+		err = os.Remove(fullPath)
+	}
+
+	if os.IsNotExist(err) {
+		return nil
+	} else {
+		return err
 	}
 }
 

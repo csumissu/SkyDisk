@@ -117,11 +117,7 @@ func (object *Object) Delete() error {
 			return err
 		}
 	}
-	if err := db.Delete(object).Error; err != nil && err != gorm.ErrRecordNotFound {
-		return err
-	} else {
-		return nil
-	}
+	return db.Delete(object).Error
 }
 
 func (object Object) DeleteChildObjects() error {
