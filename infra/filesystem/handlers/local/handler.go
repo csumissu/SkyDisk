@@ -73,6 +73,14 @@ func (handler Handler) CreateDir(ctx context.Context, objectKey string) error {
 	return os.MkdirAll(fullPath, defaultDirPermission)
 }
 
+func (handler Handler) Rename(ctx context.Context, srcObjectKey string, dstObjectKey string) error {
+	srcFullPath := filepath.Join(rootDir, srcObjectKey)
+	dstFullPath := filepath.Join(rootDir, dstObjectKey)
+	util.Logger.Debug("renaming object, src: %v, dst: %v", srcFullPath, dstFullPath)
+
+	return os.Rename(srcFullPath, dstFullPath)
+}
+
 func getRootDir() string {
 	ex, err := os.Executable()
 	if err != nil {

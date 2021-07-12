@@ -13,4 +13,6 @@ type Handler interface {
 	Delete(ctx context.Context, objectKey string, isDir bool) error
 
 	CreateDir(ctx context.Context, objectKey string) error
+
+	Rename(ctx context.Context, srcObjectKey string, dstObjectKey string) error
 }

@@ -28,7 +28,7 @@ func (service *FileService) UploadFile(ctx context.Context, virtualPath string, 
 
 	virtualPath = path.Clean(virtualPath)
 	if !strings.HasSuffix(virtualPath, upload.Filename) {
-		virtualPath = path.Join(virtualPath, upload.Filename)
+		virtualPath = path.Join(virtualPath, path.Base(upload.Filename))
 	}
 
 	fileInfo := filesystem.UploadFileInfo{
@@ -38,7 +38,7 @@ func (service *FileService) UploadFile(ctx context.Context, virtualPath string, 
 		VirtualPath: virtualPath,
 	}
 
-	fs.Use(filesystem.HookAfterUploadFile, HookGenericAfterUpload)
+	fs.Use(filesystem.HookAfterUploadFile, HookGenericAfterUploadFile)
 	err = fs.Upload(ctx, upload.File, fileInfo)
 	return err == nil, err
 }
@@ -111,6 +111,8 @@ func (service *FileService) DeleteObject(ctx context.Context, objectID uint) (bo
 	object, err := fs.User.GetObjectByID(objectID)
 	if err != nil {
 		return false, err
+	} else if object.IsRootDir() {
+		return false, fmt.Errorf("could not delete the root dir")
 	}
 
 	info := filesystem.DeleteObjectInfo{
@@ -119,7 +121,7 @@ func (service *FileService) DeleteObject(ctx context.Context, objectID uint) (bo
 		VirtualPath: object.FullPath,
 	}
 
-	fs.Use(filesystem.HookAfterDeleteObject, HookGenericAfterDelete)
+	fs.Use(filesystem.HookAfterDeleteObject, HookGenericAfterDeleteObject)
 	err = fs.Delete(ctx, info)
 	return err == nil, err
 }
@@ -131,8 +133,33 @@ func (service *FileService) CreateDir(ctx context.Context, virtualPath string) (
 	}
 	defer fs.Recycle()
 
-	fs.Use(filesystem.HookAfterCreateDir, HookGenericAfterCreateDirDir)
+	fs.Use(filesystem.HookAfterCreateDir, HookGenericAfterCreateDir)
 	err = fs.CreateDir(ctx, path.Clean(virtualPath))
+	return err == nil, err
+}
+
+func (service *FileService) RenameObject(ctx context.Context, objectID uint, newName string) (bool, error) {
+	fs, err := getFileSystem(ctx)
+	if err != nil {
+		return false, err
+	}
+	defer fs.Recycle()
+
+	object, err := fs.User.GetObjectByID(objectID)
+	if err != nil {
+		return false, err
+	} else if object.IsRootDir() {
+		return false, fmt.Errorf("could not rename the root dir")
+	}
+
+	info := filesystem.RenameObjectInfo{
+		ObjectID:       object.ID,
+		SrcVirtualPath: object.FullPath,
+		DstVirtualPath: path.Join(path.Dir(object.FullPath), path.Base(newName)),
+	}
+
+	fs.Use(filesystem.HookAfterRenameObject, HookGenericAfterRenameObject)
+	err = fs.Rename(ctx, info)
 	return err == nil, err
 }
 

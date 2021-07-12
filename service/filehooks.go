@@ -10,9 +10,9 @@ import (
 	"strings"
 )
 
-func HookGenericAfterUpload(ctx context.Context, fs *filesystem.FileSystem) error {
+func HookGenericAfterUploadFile(ctx context.Context, fs *filesystem.FileSystem) error {
 	info := ctx.Value(filesystem.UploadFileInfoCtx).(filesystem.UploadFileInfo)
-	util.Logger.Debug("hook genericAfterUpload, fileInfo: %v", info)
+	util.Logger.Debug("hook genericAfterUploadFile, info: %v", info)
 
 	dir, err := createDirsRecursively(*fs.User, path.Dir(info.VirtualPath))
 	if err != nil {
@@ -22,9 +22,9 @@ func HookGenericAfterUpload(ctx context.Context, fs *filesystem.FileSystem) erro
 	return createOrUpdateFile(*fs.User, info, *dir)
 }
 
-func HookGenericAfterDelete(ctx context.Context, fs *filesystem.FileSystem) error {
+func HookGenericAfterDeleteObject(ctx context.Context, fs *filesystem.FileSystem) error {
 	info := ctx.Value(filesystem.DeleteObjectInfoCtx).(filesystem.DeleteObjectInfo)
-	util.Logger.Debug("hook genericAfterDelete, objectInfo: %v", info)
+	util.Logger.Debug("hook genericAfterDeleteObject, info: %v", info)
 
 	if object, err := fs.User.GetObjectByID(info.ObjectID); err == nil {
 		return object.Delete()
@@ -35,12 +35,23 @@ func HookGenericAfterDelete(ctx context.Context, fs *filesystem.FileSystem) erro
 	}
 }
 
-func HookGenericAfterCreateDirDir(ctx context.Context, fs *filesystem.FileSystem) error {
+func HookGenericAfterCreateDir(ctx context.Context, fs *filesystem.FileSystem) error {
 	virtualPath := ctx.Value(filesystem.CreateDirCtx).(string)
 	util.Logger.Debug("hook genericAfterCreateDir, path: %v", virtualPath)
 
 	_, err := createDirsRecursively(*fs.User, virtualPath)
 	return err
+}
+
+func HookGenericAfterRenameObject(ctx context.Context, fs *filesystem.FileSystem) error {
+	info := ctx.Value(filesystem.RenameObjectInfoCtx).(filesystem.RenameObjectInfo)
+	util.Logger.Debug("hook genericAfterRenameObject, info: %v", info)
+
+	if object, err := fs.User.GetObjectByID(info.ObjectID); err == nil {
+		return object.Rename(info.DstVirtualPath)
+	} else {
+		return nil
+	}
 }
 
 func createOrUpdateFile(user models.User, info filesystem.UploadFileInfo, dir models.Object) error {

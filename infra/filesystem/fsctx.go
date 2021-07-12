@@ -7,6 +7,7 @@ const (
 	DownloadObjectInfoCtx
 	DeleteObjectInfoCtx
 	CreateDirCtx
+	RenameObjectInfoCtx
 )
 
 type UploadFileInfo struct {
@@ -26,4 +27,10 @@ type DeleteObjectInfo struct {
 	ObjectID    uint
 	IsDir       bool
 	VirtualPath string
+}
+
+type RenameObjectInfo struct {
+	ObjectID       uint
+	SrcVirtualPath string
+	DstVirtualPath string
 }

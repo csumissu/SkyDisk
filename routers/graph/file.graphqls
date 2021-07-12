@@ -6,6 +6,7 @@ extend type Mutation {
     uploadFile(path: String!, file: Upload!): Boolean!
     deleteObject(objectID: ID!): Boolean!
     createDir(path: String!): Boolean!
+    renameObject(objectID: ID!, newName: String!): Boolean!
 }
 
 type ListObjectsRresponse {

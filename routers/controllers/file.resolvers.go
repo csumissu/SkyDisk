@@ -5,6 +5,7 @@ package controllers
 
 import (
 	"context"
+
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/csumissu/SkyDisk/routers/dto"
 )
@@ -19,6 +20,10 @@ func (r *mutationResolver) DeleteObject(ctx context.Context, objectID uint) (boo
 
 func (r *mutationResolver) CreateDir(ctx context.Context, path string) (bool, error) {
 	return r.FileService.CreateDir(ctx, path)
+}
+
+func (r *mutationResolver) RenameObject(ctx context.Context, objectID uint, newName string) (bool, error) {
+	return r.FileService.RenameObject(ctx, objectID, newName)
 }
 
 func (r *queryResolver) ListObjects(ctx context.Context, path string) (*dto.ListObjectsRresponse, error) {

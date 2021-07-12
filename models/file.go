@@ -54,6 +54,10 @@ func (user User) CreateRootDir() (*Object, error) {
 	return rootFolder, err
 }
 
+func (object *Object) IsRootDir() bool {
+	return object.ParentID == nil && object.Type == DIR && object.Name == "/"
+}
+
 func (object *Object) Create() error {
 	return db.Create(object).Error
 }
@@ -142,4 +146,21 @@ func (user User) GetObjectByFullPath(fullPath string, objectTypes ...ObjectType)
 	dir := &Object{}
 	result := db.Where("user_id = ? and full_path = ? and type in (?)", user.ID, fullPath, objectTypes).First(dir)
 	return dir, result.Error
+}
+
+func (object *Object) Rename(fullPath string) error {
+	if object.IsDir() {
+		if err := object.RenameChildObjects(fullPath); err != nil && err != gorm.ErrRecordNotFound {
+			return err
+		}
+	}
+	object.FullPath = fullPath
+	object.Name = path.Base(fullPath)
+	return object.Update()
+}
+
+func (object *Object) RenameChildObjects(fullPath string) error {
+	return db.Model(&Object{}).Where("user_id = ? and full_path like ?", object.UserID, object.FullPath+"/%").
+		Update("full_path", gorm.Expr("replace(full_path, ?, ?)", object.FullPath, fullPath)).
+		Error
 }

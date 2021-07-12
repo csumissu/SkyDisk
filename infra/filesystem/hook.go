@@ -8,6 +8,7 @@ import (
 const HookAfterUploadFile = "AfterUploadFile"
 const HookAfterDeleteObject = "AfterDeleteObject"
 const HookAfterCreateDir = "AfterCreateDir"
+const HookAfterRenameObject = "AfterRenameObject"
 
 type Hook func(ctx context.Context, fs *FileSystem) error
 

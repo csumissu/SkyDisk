@@ -66,6 +66,18 @@ func (fs *FileSystem) CreateDir(ctx context.Context, virtualPath string) error {
 	return fs.Trigger(ctx, HookAfterCreateDir)
 }
 
+func (fs *FileSystem) Rename(ctx context.Context, info RenameObjectInfo) error {
+	ctx = context.WithValue(ctx, RenameObjectInfoCtx, info)
+	srcObjectKey := fs.generateObjectKey(info.SrcVirtualPath)
+	dstObjectKey := fs.generateObjectKey(info.DstVirtualPath)
+
+	if err := fs.handler.Rename(ctx, srcObjectKey, dstObjectKey); err != nil {
+		return err
+	}
+
+	return fs.Trigger(ctx, HookAfterRenameObject)
+}
+
 func (fs *FileSystem) generateObjectKey(virtualPath string) string {
 	return fmt.Sprintf("uploads/%d/%s", fs.User.ID, virtualPath)
 }
