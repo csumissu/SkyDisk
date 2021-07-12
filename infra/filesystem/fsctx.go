@@ -3,12 +3,13 @@ package filesystem
 type key int
 
 const (
-	UploadObjectInfoCtx key = iota
+	UploadFileInfoCtx key = iota
 	DownloadObjectInfoCtx
 	DeleteObjectInfoCtx
+	CreateDirCtx
 )
 
-type UploadObjectInfo struct {
+type UploadFileInfo struct {
 	Name        string
 	Size        uint64
 	MIMEType    string

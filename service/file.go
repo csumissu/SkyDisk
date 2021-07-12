@@ -19,7 +19,7 @@ import (
 type FileService struct {
 }
 
-func (service *FileService) SingleUpload(ctx context.Context, virtualPath string, upload graphql.Upload) (bool, error) {
+func (service *FileService) UploadFile(ctx context.Context, virtualPath string, upload graphql.Upload) (bool, error) {
 	fs, err := getFileSystem(ctx)
 	if err != nil {
 		return false, err
@@ -31,14 +31,14 @@ func (service *FileService) SingleUpload(ctx context.Context, virtualPath string
 		virtualPath = path.Join(virtualPath, upload.Filename)
 	}
 
-	fileInfo := filesystem.UploadObjectInfo{
+	fileInfo := filesystem.UploadFileInfo{
 		Name:        upload.Filename,
 		Size:        uint64(upload.Size),
 		MIMEType:    upload.ContentType,
 		VirtualPath: virtualPath,
 	}
 
-	fs.Use(filesystem.HookAfterUpload, HookGenericAfterUpload)
+	fs.Use(filesystem.HookAfterUploadFile, HookGenericAfterUpload)
 	err = fs.Upload(ctx, upload.File, fileInfo)
 	return err == nil, err
 }
@@ -119,8 +119,20 @@ func (service *FileService) DeleteObject(ctx context.Context, objectID uint) (bo
 		VirtualPath: object.FullPath,
 	}
 
-	fs.Use(filesystem.HookAfterDelete, HookGenericAfterDelete)
+	fs.Use(filesystem.HookAfterDeleteObject, HookGenericAfterDelete)
 	err = fs.Delete(ctx, info)
+	return err == nil, err
+}
+
+func (service *FileService) CreateDir(ctx context.Context, virtualPath string) (bool, error) {
+	fs, err := getFileSystem(ctx)
+	if err != nil {
+		return false, err
+	}
+	defer fs.Recycle()
+
+	fs.Use(filesystem.HookAfterCreateDir, HookGenericAfterCreateDirDir)
+	err = fs.CreateDir(ctx, path.Clean(virtualPath))
 	return err == nil, err
 }
 

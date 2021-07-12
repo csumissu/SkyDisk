@@ -13,14 +13,15 @@ type Handler struct {
 
 var rootDir = getRootDir()
 
+const defaultDirPermission = 0744
+
 func (handler Handler) Put(ctx context.Context, file io.Reader, objectKey string, size uint64) error {
 	fullPath := filepath.Join(rootDir, objectKey)
 	util.Logger.Debug("uploading file, fullPath: %v, size: %v", fullPath, size)
 
 	basePath := filepath.Dir(fullPath)
 	if _, err := os.Stat(fullPath); os.IsNotExist(err) {
-		err := os.MkdirAll(basePath, 0744)
-		if err != nil {
+		if err = os.MkdirAll(basePath, defaultDirPermission); err != nil {
 			util.Logger.Warn("directory could not be created, basePath: %v", basePath, err)
 			return err
 		}
@@ -63,6 +64,13 @@ func (handler Handler) Delete(ctx context.Context, objectKey string, isDir bool)
 	} else {
 		return err
 	}
+}
+
+func (handler Handler) CreateDir(ctx context.Context, objectKey string) error {
+	fullPath := filepath.Join(rootDir, objectKey)
+	util.Logger.Debug("creating dir, fullPath: %v", fullPath)
+
+	return os.MkdirAll(fullPath, defaultDirPermission)
 }
 
 func getRootDir() string {

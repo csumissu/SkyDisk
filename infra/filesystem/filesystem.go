@@ -27,15 +27,15 @@ func (fs *FileSystem) determineHandler() {
 	fs.handler = local.Handler{}
 }
 
-func (fs *FileSystem) Upload(ctx context.Context, file io.Reader, info UploadObjectInfo) error {
-	ctx = context.WithValue(ctx, UploadObjectInfoCtx, info)
+func (fs *FileSystem) Upload(ctx context.Context, file io.Reader, info UploadFileInfo) error {
+	ctx = context.WithValue(ctx, UploadFileInfoCtx, info)
 	objectKey := fs.generateObjectKey(info.VirtualPath)
 
 	if err := fs.handler.Put(ctx, file, objectKey, info.Size); err != nil {
 		return err
 	}
 
-	return fs.Trigger(ctx, HookAfterUpload)
+	return fs.Trigger(ctx, HookAfterUploadFile)
 }
 
 func (fs *FileSystem) Download(ctx context.Context, info DownloadObjectInfo) (io.ReadSeekCloser, error) {
@@ -52,7 +52,18 @@ func (fs *FileSystem) Delete(ctx context.Context, info DeleteObjectInfo) error {
 		return err
 	}
 
-	return fs.Trigger(ctx, HookAfterDelete)
+	return fs.Trigger(ctx, HookAfterDeleteObject)
+}
+
+func (fs *FileSystem) CreateDir(ctx context.Context, virtualPath string) error {
+	ctx = context.WithValue(ctx, CreateDirCtx, virtualPath)
+	objectKey := fs.generateObjectKey(virtualPath)
+
+	if err := fs.handler.CreateDir(ctx, objectKey); err != nil {
+		return err
+	}
+
+	return fs.Trigger(ctx, HookAfterCreateDir)
 }
 
 func (fs *FileSystem) generateObjectKey(virtualPath string) string {

@@ -50,8 +50,9 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
+		CreateDir    func(childComplexity int, path string) int
 		DeleteObject func(childComplexity int, objectID uint) int
-		SingleUpload func(childComplexity int, path string, file graphql.Upload) int
+		UploadFile   func(childComplexity int, path string, file graphql.Upload) int
 	}
 
 	ObjectResponse struct {
@@ -78,8 +79,9 @@ type ComplexityRoot struct {
 }
 
 type MutationResolver interface {
-	SingleUpload(ctx context.Context, path string, file graphql.Upload) (bool, error)
+	UploadFile(ctx context.Context, path string, file graphql.Upload) (bool, error)
 	DeleteObject(ctx context.Context, objectID uint) (bool, error)
+	CreateDir(ctx context.Context, path string) (bool, error)
 }
 type QueryResolver interface {
 	ListObjects(ctx context.Context, path string) (*dto.ListObjectsRresponse, error)
@@ -115,6 +117,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ListObjectsRresponse.Current(childComplexity), true
 
+	case "Mutation.createDir":
+		if e.complexity.Mutation.CreateDir == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createDir_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateDir(childComplexity, args["path"].(string)), true
+
 	case "Mutation.deleteObject":
 		if e.complexity.Mutation.DeleteObject == nil {
 			break
@@ -127,17 +141,17 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.DeleteObject(childComplexity, args["objectID"].(uint)), true
 
-	case "Mutation.singleUpload":
-		if e.complexity.Mutation.SingleUpload == nil {
+	case "Mutation.uploadFile":
+		if e.complexity.Mutation.UploadFile == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_singleUpload_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_uploadFile_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.SingleUpload(childComplexity, args["path"].(string), args["file"].(graphql.Upload)), true
+		return e.complexity.Mutation.UploadFile(childComplexity, args["path"].(string), args["file"].(graphql.Upload)), true
 
 	case "ObjectResponse.createdAt":
 		if e.complexity.ObjectResponse.CreatedAt == nil {
@@ -312,8 +326,9 @@ type Mutation`, BuiltIn: false},
 }
 
 extend type Mutation {
-    singleUpload(path: String!, file: Upload!): Boolean!
+    uploadFile(path: String!, file: Upload!): Boolean!
     deleteObject(objectID: ID!): Boolean!
+    createDir(path: String!): Boolean!
 }
 
 type ListObjectsRresponse {
@@ -347,6 +362,21 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 
 // region    ***************************** args.gotpl *****************************
 
+func (ec *executionContext) field_Mutation_createDir_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["path"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("path"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["path"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Mutation_deleteObject_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -362,7 +392,7 @@ func (ec *executionContext) field_Mutation_deleteObject_args(ctx context.Context
 	return args, nil
 }
 
-func (ec *executionContext) field_Mutation_singleUpload_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_uploadFile_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 string
@@ -521,7 +551,7 @@ func (ec *executionContext) _ListObjectsRresponse_children(ctx context.Context, 
 	return ec.marshalOObjectResponse2ᚕᚖgithubᚗcomᚋcsumissuᚋSkyDiskᚋroutersᚋdtoᚐObjectResponseᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Mutation_singleUpload(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+func (ec *executionContext) _Mutation_uploadFile(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -538,7 +568,7 @@ func (ec *executionContext) _Mutation_singleUpload(ctx context.Context, field gr
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	rawArgs := field.ArgumentMap(ec.Variables)
-	args, err := ec.field_Mutation_singleUpload_args(ctx, rawArgs)
+	args, err := ec.field_Mutation_uploadFile_args(ctx, rawArgs)
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
@@ -546,7 +576,7 @@ func (ec *executionContext) _Mutation_singleUpload(ctx context.Context, field gr
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().SingleUpload(rctx, args["path"].(string), args["file"].(graphql.Upload))
+		return ec.resolvers.Mutation().UploadFile(rctx, args["path"].(string), args["file"].(graphql.Upload))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -589,6 +619,48 @@ func (ec *executionContext) _Mutation_deleteObject(ctx context.Context, field gr
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().DeleteObject(rctx, args["objectID"].(uint))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_createDir(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_createDir_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreateDir(rctx, args["path"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2271,13 +2343,18 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Mutation")
-		case "singleUpload":
-			out.Values[i] = ec._Mutation_singleUpload(ctx, field)
+		case "uploadFile":
+			out.Values[i] = ec._Mutation_uploadFile(ctx, field)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
 		case "deleteObject":
 			out.Values[i] = ec._Mutation_deleteObject(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "createDir":
+			out.Values[i] = ec._Mutation_createDir(ctx, field)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}

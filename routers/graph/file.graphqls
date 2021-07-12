@@ -3,8 +3,9 @@ extend type Query {
 }
 
 extend type Mutation {
-    singleUpload(path: String!, file: Upload!): Boolean!
+    uploadFile(path: String!, file: Upload!): Boolean!
     deleteObject(objectID: ID!): Boolean!
+    createDir(path: String!): Boolean!
 }
 
 type ListObjectsRresponse {

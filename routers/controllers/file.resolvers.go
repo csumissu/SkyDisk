@@ -5,17 +5,20 @@ package controllers
 
 import (
 	"context"
-
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/csumissu/SkyDisk/routers/dto"
 )
 
-func (r *mutationResolver) SingleUpload(ctx context.Context, path string, file graphql.Upload) (bool, error) {
-	return r.FileService.SingleUpload(ctx, path, file)
+func (r *mutationResolver) UploadFile(ctx context.Context, path string, file graphql.Upload) (bool, error) {
+	return r.FileService.UploadFile(ctx, path, file)
 }
 
 func (r *mutationResolver) DeleteObject(ctx context.Context, objectID uint) (bool, error) {
 	return r.FileService.DeleteObject(ctx, objectID)
+}
+
+func (r *mutationResolver) CreateDir(ctx context.Context, path string) (bool, error) {
+	return r.FileService.CreateDir(ctx, path)
 }
 
 func (r *queryResolver) ListObjects(ctx context.Context, path string) (*dto.ListObjectsRresponse, error) {

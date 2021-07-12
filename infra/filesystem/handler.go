@@ -11,4 +11,6 @@ type Handler interface {
 	Get(ctx context.Context, objectKey string, isDir bool) (io.ReadSeekCloser, error)
 
 	Delete(ctx context.Context, objectKey string, isDir bool) error
+
+	CreateDir(ctx context.Context, objectKey string) error
 }

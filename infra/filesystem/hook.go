@@ -5,8 +5,9 @@ import (
 	"github.com/csumissu/SkyDisk/util"
 )
 
-const HookAfterUpload = "AfterUpload"
-const HookAfterDelete = "AfterDelete"
+const HookAfterUploadFile = "AfterUploadFile"
+const HookAfterDeleteObject = "AfterDeleteObject"
+const HookAfterCreateDir = "AfterCreateDir"
 
 type Hook func(ctx context.Context, fs *FileSystem) error
 

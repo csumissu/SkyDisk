@@ -11,7 +11,7 @@ import (
 )
 
 func HookGenericAfterUpload(ctx context.Context, fs *filesystem.FileSystem) error {
-	info := ctx.Value(filesystem.UploadObjectInfoCtx).(filesystem.UploadObjectInfo)
+	info := ctx.Value(filesystem.UploadFileInfoCtx).(filesystem.UploadFileInfo)
 	util.Logger.Debug("hook genericAfterUpload, fileInfo: %v", info)
 
 	dir, err := createDirsRecursively(*fs.User, path.Dir(info.VirtualPath))
@@ -35,7 +35,15 @@ func HookGenericAfterDelete(ctx context.Context, fs *filesystem.FileSystem) erro
 	}
 }
 
-func createOrUpdateFile(user models.User, info filesystem.UploadObjectInfo, dir models.Object) error {
+func HookGenericAfterCreateDirDir(ctx context.Context, fs *filesystem.FileSystem) error {
+	virtualPath := ctx.Value(filesystem.CreateDirCtx).(string)
+	util.Logger.Debug("hook genericAfterCreateDir, path: %v", virtualPath)
+
+	_, err := createDirsRecursively(*fs.User, virtualPath)
+	return err
+}
+
+func createOrUpdateFile(user models.User, info filesystem.UploadFileInfo, dir models.Object) error {
 	file, err := user.GetObjectByNameAndParentID(info.Name, dir.ID, models.FILE)
 	if err == nil {
 		file.MIMEType = &info.MIMEType
