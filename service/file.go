@@ -163,6 +163,35 @@ func (service *FileService) RenameObject(ctx context.Context, objectID uint, new
 	return err == nil, err
 }
 
+func (service *FileService) MoveObject(ctx context.Context, objectID uint, newPath string) (bool, error) {
+	fs, err := getFileSystem(ctx)
+	if err != nil {
+		return false, err
+	}
+	defer fs.Recycle()
+
+	object, err := fs.User.GetObjectByID(objectID)
+	if err != nil {
+		return false, err
+	} else if object.IsRootDir() {
+		return false, fmt.Errorf("could not move the root dir")
+	}
+
+	info := filesystem.MoveObjectInfo{
+		ObjectID:       object.ID,
+		SrcVirtualPath: object.FullPath,
+		DstVirtualPath: path.Join(path.Clean(newPath), object.Name),
+	}
+
+	if object.IsDir() && strings.HasPrefix(info.DstVirtualPath, info.SrcVirtualPath+"/") {
+		return false, fmt.Errorf("could not move its subdir")
+	}
+
+	fs.Use(filesystem.HookAfterMoveObject, HookGenericAfterMoveObject)
+	err = fs.Move(ctx, info)
+	return err == nil, err
+}
+
 func getFileSystem(ctx context.Context) (*filesystem.FileSystem, error) {
 	if user, err := GetCurrentUser(ctx); err == nil {
 		return filesystem.NewFileSystem(user)

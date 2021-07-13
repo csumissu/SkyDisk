@@ -26,6 +26,10 @@ func (r *mutationResolver) RenameObject(ctx context.Context, objectID uint, newN
 	return r.FileService.RenameObject(ctx, objectID, newName)
 }
 
+func (r *mutationResolver) MoveObject(ctx context.Context, objectID uint, path string) (bool, error) {
+	return r.FileService.MoveObject(ctx, objectID, path)
+}
+
 func (r *queryResolver) ListObjects(ctx context.Context, path string) (*dto.ListObjectsRresponse, error) {
 	return r.FileService.ListObjects(ctx, path)
 }

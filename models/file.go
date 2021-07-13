@@ -159,6 +159,19 @@ func (object *Object) Rename(fullPath string) error {
 	return object.Update()
 }
 
+func (object *Object) MoveTo(dir Object) error {
+	fullPath := path.Join(dir.FullPath, object.Name)
+	if object.IsDir() {
+		if err := object.RenameChildObjects(fullPath); err != nil && err != gorm.ErrRecordNotFound {
+			return err
+		}
+	}
+
+	object.FullPath = fullPath
+	object.ParentID = &dir.ID
+	return object.Update()
+}
+
 func (object *Object) RenameChildObjects(fullPath string) error {
 	return db.Model(&Object{}).Where("user_id = ? and full_path like ?", object.UserID, object.FullPath+"/%").
 		Update("full_path", gorm.Expr("regexp_replace(full_path, ?, ?)", "^"+object.FullPath+"/", fullPath+"/")).

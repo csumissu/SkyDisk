@@ -15,4 +15,6 @@ type Handler interface {
 	CreateDir(ctx context.Context, objectKey string) error
 
 	Rename(ctx context.Context, srcObjectKey string, dstObjectKey string) error
+
+	Move(ctx context.Context, srcObjectKey string, dstObjectKey string) error
 }

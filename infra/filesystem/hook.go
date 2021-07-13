@@ -9,6 +9,7 @@ const HookAfterUploadFile = "AfterUploadFile"
 const HookAfterDeleteObject = "AfterDeleteObject"
 const HookAfterCreateDir = "AfterCreateDir"
 const HookAfterRenameObject = "AfterRenameObject"
+const HookAfterMoveObject = "AfterMoveObject"
 
 type Hook func(ctx context.Context, fs *FileSystem) error
 

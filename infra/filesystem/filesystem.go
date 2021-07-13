@@ -78,6 +78,18 @@ func (fs *FileSystem) Rename(ctx context.Context, info RenameObjectInfo) error {
 	return fs.Trigger(ctx, HookAfterRenameObject)
 }
 
+func (fs *FileSystem) Move(ctx context.Context, info MoveObjectInfo) error {
+	ctx = context.WithValue(ctx, MoveObjectInfoCtx, info)
+	srcObjectKey := fs.generateObjectKey(info.SrcVirtualPath)
+	dstObjectKey := fs.generateObjectKey(info.DstVirtualPath)
+
+	if err := fs.handler.Move(ctx, srcObjectKey, dstObjectKey); err != nil {
+		return err
+	}
+
+	return fs.Trigger(ctx, HookAfterMoveObject)
+}
+
 func (fs *FileSystem) generateObjectKey(virtualPath string) string {
 	return fmt.Sprintf("uploads/%d/%s", fs.User.ID, virtualPath)
 }

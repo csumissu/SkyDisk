@@ -54,6 +54,22 @@ func HookGenericAfterRenameObject(ctx context.Context, fs *filesystem.FileSystem
 	}
 }
 
+func HookGenericAfterMoveObject(ctx context.Context, fs *filesystem.FileSystem) error {
+	info := ctx.Value(filesystem.MoveObjectInfoCtx).(filesystem.MoveObjectInfo)
+	util.Logger.Debug("hook genericAfterMoveObject, info: %v", info)
+
+	dir, err := createDirsRecursively(*fs.User, path.Dir(info.DstVirtualPath))
+	if err != nil {
+		return err
+	}
+
+	if object, err := fs.User.GetObjectByID(info.ObjectID); err == nil {
+		return object.MoveTo(*dir)
+	} else {
+		return nil
+	}
+}
+
 func createOrUpdateFile(user models.User, info filesystem.UploadFileInfo, dir models.Object) error {
 	file, err := user.GetObjectByNameAndParentID(info.Name, dir.ID, models.FILE)
 	if err == nil {

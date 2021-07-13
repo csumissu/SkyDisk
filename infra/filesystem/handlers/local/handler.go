@@ -78,6 +78,22 @@ func (handler Handler) Rename(ctx context.Context, srcObjectKey string, dstObjec
 	dstFullPath := filepath.Join(rootDir, dstObjectKey)
 	util.Logger.Debug("renaming object, src: %v, dst: %v", srcFullPath, dstFullPath)
 
+	if err := os.MkdirAll(filepath.Dir(dstFullPath), defaultDirPermission); err != nil {
+		return err
+	}
+
+	return os.Rename(srcFullPath, dstFullPath)
+}
+
+func (handler Handler) Move(ctx context.Context, srcObjectKey string, dstObjectKey string) error {
+	srcFullPath := filepath.Join(rootDir, srcObjectKey)
+	dstFullPath := filepath.Join(rootDir, dstObjectKey)
+	util.Logger.Debug("moving object, src: %v, dst: %v", srcFullPath, dstFullPath)
+
+	if err := os.MkdirAll(filepath.Dir(dstFullPath), defaultDirPermission); err != nil {
+		return err
+	}
+
 	return os.Rename(srcFullPath, dstFullPath)
 }
 
