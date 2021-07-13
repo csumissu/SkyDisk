@@ -161,6 +161,6 @@ func (object *Object) Rename(fullPath string) error {
 
 func (object *Object) RenameChildObjects(fullPath string) error {
 	return db.Model(&Object{}).Where("user_id = ? and full_path like ?", object.UserID, object.FullPath+"/%").
-		Update("full_path", gorm.Expr("replace(full_path, ?, ?)", object.FullPath, fullPath)).
+		Update("full_path", gorm.Expr("regexp_replace(full_path, ?, ?)", "^"+object.FullPath+"/", fullPath+"/")).
 		Error
 }
