@@ -4,10 +4,10 @@ extend type Query {
 
 extend type Mutation {
     uploadFile(path: String!, file: Upload!): Boolean!
-    deleteObject(objectID: ID!): Boolean!
+    deleteObject(objectId: ID!): Boolean!
     createDir(path: String!): Boolean!
-    renameObject(objectID: ID!, newName: String!): Boolean!
-    moveObject(objectID: ID!, path: String!): Boolean!
+    renameObject(objectId: ID!, newName: String!): Boolean!
+    moveObject(objectId: ID!, path: String!): Boolean!
 }
 
 type ListObjectsRresponse {

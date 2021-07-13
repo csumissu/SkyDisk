@@ -143,7 +143,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.DeleteObject(childComplexity, args["objectID"].(uint)), true
+		return e.complexity.Mutation.DeleteObject(childComplexity, args["objectId"].(uint)), true
 
 	case "Mutation.moveObject":
 		if e.complexity.Mutation.MoveObject == nil {
@@ -155,7 +155,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.MoveObject(childComplexity, args["objectID"].(uint), args["path"].(string)), true
+		return e.complexity.Mutation.MoveObject(childComplexity, args["objectId"].(uint), args["path"].(string)), true
 
 	case "Mutation.renameObject":
 		if e.complexity.Mutation.RenameObject == nil {
@@ -167,7 +167,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.RenameObject(childComplexity, args["objectID"].(uint), args["newName"].(string)), true
+		return e.complexity.Mutation.RenameObject(childComplexity, args["objectId"].(uint), args["newName"].(string)), true
 
 	case "Mutation.uploadFile":
 		if e.complexity.Mutation.UploadFile == nil {
@@ -355,10 +355,10 @@ type Mutation`, BuiltIn: false},
 
 extend type Mutation {
     uploadFile(path: String!, file: Upload!): Boolean!
-    deleteObject(objectID: ID!): Boolean!
+    deleteObject(objectId: ID!): Boolean!
     createDir(path: String!): Boolean!
-    renameObject(objectID: ID!, newName: String!): Boolean!
-    moveObject(objectID: ID!, path: String!): Boolean!
+    renameObject(objectId: ID!, newName: String!): Boolean!
+    moveObject(objectId: ID!, path: String!): Boolean!
 }
 
 type ListObjectsRresponse {
@@ -411,14 +411,14 @@ func (ec *executionContext) field_Mutation_deleteObject_args(ctx context.Context
 	var err error
 	args := map[string]interface{}{}
 	var arg0 uint
-	if tmp, ok := rawArgs["objectID"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("objectID"))
+	if tmp, ok := rawArgs["objectId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("objectId"))
 		arg0, err = ec.unmarshalNID2uint(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["objectID"] = arg0
+	args["objectId"] = arg0
 	return args, nil
 }
 
@@ -426,14 +426,14 @@ func (ec *executionContext) field_Mutation_moveObject_args(ctx context.Context, 
 	var err error
 	args := map[string]interface{}{}
 	var arg0 uint
-	if tmp, ok := rawArgs["objectID"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("objectID"))
+	if tmp, ok := rawArgs["objectId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("objectId"))
 		arg0, err = ec.unmarshalNID2uint(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["objectID"] = arg0
+	args["objectId"] = arg0
 	var arg1 string
 	if tmp, ok := rawArgs["path"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("path"))
@@ -450,14 +450,14 @@ func (ec *executionContext) field_Mutation_renameObject_args(ctx context.Context
 	var err error
 	args := map[string]interface{}{}
 	var arg0 uint
-	if tmp, ok := rawArgs["objectID"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("objectID"))
+	if tmp, ok := rawArgs["objectId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("objectId"))
 		arg0, err = ec.unmarshalNID2uint(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["objectID"] = arg0
+	args["objectId"] = arg0
 	var arg1 string
 	if tmp, ok := rawArgs["newName"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("newName"))
@@ -696,7 +696,7 @@ func (ec *executionContext) _Mutation_deleteObject(ctx context.Context, field gr
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().DeleteObject(rctx, args["objectID"].(uint))
+		return ec.resolvers.Mutation().DeleteObject(rctx, args["objectId"].(uint))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -780,7 +780,7 @@ func (ec *executionContext) _Mutation_renameObject(ctx context.Context, field gr
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().RenameObject(rctx, args["objectID"].(uint), args["newName"].(string))
+		return ec.resolvers.Mutation().RenameObject(rctx, args["objectId"].(uint), args["newName"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -822,7 +822,7 @@ func (ec *executionContext) _Mutation_moveObject(ctx context.Context, field grap
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().MoveObject(rctx, args["objectID"].(uint), args["path"].(string))
+		return ec.resolvers.Mutation().MoveObject(rctx, args["objectId"].(uint), args["path"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
